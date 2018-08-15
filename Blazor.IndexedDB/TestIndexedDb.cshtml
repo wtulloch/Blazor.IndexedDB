@@ -1,0 +1,27 @@
+﻿@using Blazor.IndexedDB
+@using Microsoft.JSInterop
+<div >
+    <button onclick="@CreateDatabase" >Create database</button> <br/>
+    <p>@Message</p>
+    <button onclick="@TestProps">Test Properties</button>
+</div>
+
+@functions
+{
+    string Message { get; set; }
+
+    protected async void CreateDatabase()
+    {
+
+        Message = await IndexedDbPromises.ExecuteAsync<string>("TimeGhost.IndexedDbManager.createDb", new { dbName = "test1", version = 1 });
+        StateHasChanged();
+    }
+
+    protected  void TestProps()
+    {
+        Message = (JSRuntime.Current as IJSInProcessRuntime).Invoke<string>("TimeGhost.IndexedDbManager.testFunction");
+        StateHasChanged();
+    }
+
+
+}
