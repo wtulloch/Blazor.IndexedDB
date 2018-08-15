@@ -1,4 +1,4 @@
-﻿import {IndexedDbManager } from './indexedDbBlazor'
+﻿import { IndexedDbManager } from './indexedDbBlazor';
 
 namespace IndexDb {
     const timeghostExtensions: string = 'TimeGhost';
