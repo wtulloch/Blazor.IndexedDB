@@ -2,55 +2,84 @@
 @using Blazor.IndexedDB
 @using Microsoft.JSInterop
 <div>
-    <button onclick="@CreateDatabase">Create database</button> <br />
-    <p>@Message</p>
-    <button onclick="@TestProps">Test Properties</button>
-    <button onclick="@TestAddRecord">Add Record</button>
+    <p><b>status:</b> @Message</p>
+</div>
+<div class="d-flex flex-column align-items-start">
+    <button class="btn btn-outline-primary " onclick="@OpenDatabase">Open Database</button>
+    <button class="btn btn-outline-primary" onclick="@CreateDatabase">Create database</button>
+    <div class="d-flex, flex-column">
+        <div>
+            <label>First Name</label> <input id="firstName" type="text" bind="@FirstName" />
+        </div>
+        <div>
+            <label>Last Name</label> <input id="lastName" type="text" bind="@LastName" />
+        </div>
+        <button onclick="@TestAddRecord">Add Record</button>
+    </div>
+
+
+   
+    
 </div>
 
 @functions
 {
-string Message { get; set; }
+        string Message { get; set; }
 
-protected async void CreateDatabase()
-{
-    var dbStore = new DbStore
-    {
-        Name = "DataStore",
-        Version = 1
-    };
+        string FirstName { get; set; }
+        string LastName { get; set; }
 
-    var peopleTable = new TableSchema
+        private IndexedDBManager dbManager = new IndexedDBManager();
+
+    protected async void OpenDatabase()
     {
-        Name = "People",
-        DbVersion = 1,
-        PrimaryKey = new IndexSpec
+        Message = await dbManager.OpenDb("DataStore");
+        StateHasChanged();
+    }
+
+    protected async void CreateDatabase()
+    {
+        var dbStore = new DbStore
         {
-            Name = "id",
-            Auto = true
-        }
-    };
+            Name = "TestStore",
+            Version = 1
+        };
 
-    peopleTable.Indexes.Add(new IndexSpec { Name = "lastName", KeyPath = "lastName" });
-    dbStore.Tables.Add(peopleTable);
+        var peopleTable = new TableSchema
+        {
+            Name = "People",
+            DbVersion = 1,
+            PrimaryKey = new IndexSpec
+            {
+                Name = "id",
+                Auto = true
+            }
+        };
+
+        peopleTable.Indexes.Add(new IndexSpec { Name = "lastName", KeyPath = "lastName" });
+        dbStore.Tables.Add(peopleTable);
 
 
-    Message = await IndexedDbPromises.ExecuteAsync<string>("createDb", dbStore);
-    StateHasChanged();
-}
+        Message = await dbManager.CreateDb2(dbStore);
+        StateHasChanged();
+    }
 
-protected async void TestAddRecord()
-{
-    var person = new { FirstName = "Bob", LastName = "Smith" };
-    Message = await IndexedDbPromises.ExecuteAsync<string>("addItem", new { Storename = "People", Data = person });
-    StateHasChanged();
-}
+    protected async void TestAddRecord()
+    {
+        var person = new { FirstName,  LastName };
+        var newRecord = new SingleRecord<object>
+        {
+            Storename = "People",
+            Data = person
+        };
+        var result = await dbManager.AddRecord(newRecord);
+        Message = $"{result.Item2} id: ${result.Item3}";
+        LastName = "";
+        FirstName = "";
+        StateHasChanged();
+    }
 
-protected void TestProps()
-{
-    Message = (JSRuntime.Current as IJSInProcessRuntime).Invoke<string>("TimeGhost.IndexedDbManager.testFunction");
-    StateHasChanged();
-}
+
 
 
 }

@@ -30,29 +30,46 @@ export class IndexedDbManager {
     private db: any;
     private assemblyName = 'Blazor.IndexedDB';
     private promiseCallback = 'PromiseCallback';
-   private promiseError = 'PromiseError';
+    private promiseError = 'PromiseError';
+    private isOpen = false;
 
     public runFunction = (callbackId: string, fnName: string, data: any): boolean => {
 
         console.log('Start runFunction');
 
-       const promise = this[fnName](data);
+        const promise = this[fnName](data);
 
         promise.then(value => {
             if (value === undefined) {
                 value = '';
             }
-                const result =  JSON.stringify(value);
-                DotNet.invokeMethodAsync(this.assemblyName, this.promiseCallback,callbackId, result);
-            })
+            const result = JSON.stringify(value);
+            DotNet.invokeMethodAsync(this.assemblyName, this.promiseCallback, callbackId, result);
+        })
             .catch(reason => {
                 const result = JSON.stringify(reason);
-                DotNet.invokeMethodAsync(this.assemblyName, this.promiseError,callbackId, result);
+                DotNet.invokeMethodAsync(this.assemblyName, this.promiseError, callbackId, result);
             });
 
         return true;
     }
 
+    public openDb = (dbName: string): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const openRequest = window.indexedDB.open(dbName);
+
+            openRequest.onsuccess = ev => {
+                this.db = openRequest.result;
+                this.isOpen = true;
+                resolve(`Database ${dbName} opened`);
+            }
+            openRequest.onerror = ev => {
+                reject(`Failed to open database ${dbName}`);
+            }
+
+
+        });
+    }
     public createDb = (data): Promise<string> => {
         const dbStore = data as IDbStore;
         console.log("createDb");
@@ -61,12 +78,13 @@ export class IndexedDbManager {
 
             openRequest.onsuccess = ev => {
                 this.db = openRequest.result;
+                this.isOpen = true;
                 resolve(`Database ${dbStore.name} created. Version: ${dbStore.version}`);
-            } 
+            }
 
             openRequest.onerror = ev => {
                 reject(`Failed to create database ${dbStore.name}`);
-        }
+            }
 
             openRequest.onupgradeneeded = (ev: IDBVersionChangeEvent) => {
                 const db = openRequest.result;
@@ -87,31 +105,33 @@ export class IndexedDbManager {
         });
     }
 
-    public addItem = (record: ISingleRecord):Promise<string> => {
+    public addRecord = (record: ISingleRecord): Promise<[boolean, string, number]> => {
         const stName = record.storename;
         const itemToSave = record.data;
         const store = this.getObjectStore(stName, 'readwrite');
-        
-        return new Promise<string>((resolve, reject) => {
-            const req: IDBRequest = store.add(itemToSave);
+
+        return new Promise<any>((resolve, reject) => {
+            const req = store.add(itemToSave);
 
             req.onsuccess = ev => {
                 console.log('Insertion successful');
-                resolve('Record added');
+                console.log('result', req.result);
+                console.log('source', req.source);
+                resolve({ item1: true, item2: 'Record Added', item3: req.result as number });
             }
+
             req.onerror = ev => {
-                reject('Failed to added record');
+                reject([false,'Failed to added record',-1]);
             }
+
         });
     }
 
-   public getObjectStore = (storeName: string, mode: string) :IDBObjectStore  => {
+    public getObjectStore = (storeName: string, mode: 'readonly' | 'readwrite' | 'versionchange' | undefined): IDBObjectStore => {
         const tx: IDBTransaction = this.db.transaction(storeName, mode);
         return tx.objectStore(storeName);
     }
 
-    public testFunction = (message: string):string => {
-        const testVar = this.assemblyName;
-        return `${message}: ${testVar}`;
-    }
+
+
 }

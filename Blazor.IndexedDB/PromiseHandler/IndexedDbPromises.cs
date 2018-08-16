@@ -5,7 +5,7 @@ using Microsoft.JSInterop;
 
 namespace Blazor.IndexedDB
 {
-    public static class IndexedDbPromises
+    public static class PromiseHandler
     {
         private static readonly ConcurrentDictionary<string, IPromiseCallbackHandler> CallbackHandlers =
             new ConcurrentDictionary<string, IPromiseCallbackHandler>();
