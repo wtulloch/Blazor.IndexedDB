@@ -21,19 +21,16 @@ namespace Blazor.IndexedDB
             var result = await JSRuntime.Current.InvokeAsync<string>($"{InteropPrefix}.createDb", dbStore);
             return result;
         }
-        public async Task<string> OpenDb(string dbName)
+        public async Task<string> OpenDb(DbStore dbName)
         {
-            return await PromiseHandler.ExecuteAsync<string>(DbFunctions.openDb, dbName);
+            var result = await JSRuntime.Current.InvokeAsync<string>($"{InteropPrefix}.openDb", dbName);
+            return result;
         }
 
-        public async Task<string> CreateDb(DbStore dbStore)
+        
+        public async Task<string> AddRecord<T>(SingleRecord<T> recordToAdd)
         {
-            return await PromiseHandler.ExecuteAsync<string>(DbFunctions.CreateDb, dbStore);
-        }
-
-        public async Task<Tuple<bool, string, int>> AddRecord<T>(SingleRecord<T> recordToAdd)
-        {
-            return await PromiseHandler.ExecuteAsync<Tuple<bool, string, int>>(DbFunctions.AddRecord, recordToAdd);
+            return await JSRuntime.Current.InvokeAsync<string>($"{InteropPrefix}.addRecord", recordToAdd);
         }
 
         public async Task<List<T>> GetRecords<T>(string storeName)

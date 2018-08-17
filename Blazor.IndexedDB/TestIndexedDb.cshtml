@@ -6,7 +6,6 @@
 </div>
 <div class="d-flex flex-column align-items-start">
     <button class="btn btn-outline-primary " onclick="@OpenDatabase">Open Database</button>
-    <button class="btn btn-outline-primary" onclick="@CreateDatabase">Create database</button>
     <div class="d-flex, flex-column">
         <div>
             <label>First Name</label> <input id="firstName" type="text" bind="@FirstName" />
@@ -24,25 +23,19 @@
 
 @functions
 {
-        string Message { get; set; }
+    string Message { get; set; }
 
-        string FirstName { get; set; }
-        string LastName { get; set; }
+    string FirstName { get; set; }
+    string LastName { get; set; }
 
-        private IndexedDBManager dbManager = new IndexedDBManager();
+    private IndexedDBManager dbManager = new IndexedDBManager();
 
     protected async void OpenDatabase()
-    {
-        Message = await dbManager.OpenDb("DataStore");
-        StateHasChanged();
-    }
-
-    protected async void CreateDatabase()
     {
         var dbStore = new DbStore
         {
             Name = "TestStore",
-            Version = 1
+            Version = 2
         };
 
         var peopleTable = new TableSchema
@@ -58,9 +51,7 @@
 
         peopleTable.Indexes.Add(new IndexSpec { Name = "lastName", KeyPath = "lastName" });
         dbStore.Tables.Add(peopleTable);
-
-
-        Message = await dbManager.CreateDb2(dbStore);
+        Message = await dbManager.OpenDb(dbStore);
         StateHasChanged();
     }
 
@@ -73,7 +64,7 @@
             Data = person
         };
         var result = await dbManager.AddRecord(newRecord);
-        Message = $"{result.Item2} id: ${result.Item3}";
+        Message = result;
         LastName = "";
         FirstName = "";
         StateHasChanged();
