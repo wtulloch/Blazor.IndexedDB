@@ -14,7 +14,7 @@ interface IIndexSpec {
     auto: boolean;
 }
 
-interface ITableSchema {
+interface IStoreSchema {
     dbVersion?: number;
     name: string;
     primaryKey: IIndexSpec;
@@ -22,9 +22,9 @@ interface ITableSchema {
 }
 
 interface IDbStore {
-    name: string;
+    dbName: string;
     version: number;
-    tables: ITableSchema[];
+    stores: IStoreSchema[];
 
 }
 
@@ -59,19 +59,24 @@ export class IndexedDbManager {
     public openDb = (data): Promise<string> => {
         var dbStore = data as IDbStore;
         return new Promise<string>((resolve, reject) => {
-            this.db = new PromisedDB(dbStore.name, dbStore.version,
+            this.db = new PromisedDB(dbStore.dbName, dbStore.version,
                 (db, onDiskVersion, newVersion) => {
 
-                    if (dbStore.tables) {
-                        for (let i = 0; i < dbStore.tables.length; i++) {
-                            const table = dbStore.tables[i];
-                            if (!db.objectStoreNames.contains(table.name)) {
-                                const primaryKey = table.primaryKey;
-                                const store = db.createObjectStore(table.name,
-                                    { keyPath: primaryKey.name, autoIncrement: primaryKey.auto });
+                    if (dbStore.stores) {
+                        for (let i = 0; i < dbStore.stores.length; i++) {
+                            const storeSchema = dbStore.stores[i];
 
-                                for (let j = 0; j < table.indexes.length; j++) {
-                                    const index = table.indexes[j];
+                            if (!db.objectStoreNames.contains(storeSchema.name)) {
+                                let primaryKey = storeSchema.primaryKey;
+
+                                if (!primaryKey) {
+                                    primaryKey =  {name: 'id',keyPath: 'id', auto: true}
+                                }
+                                const store = db.createObjectStore(storeSchema.name,
+                                    { keyPath: primaryKey.name, autoIncrement: primaryKey.auto });
+                               
+                                for (let j = 0; j < storeSchema.indexes.length; j++) {
+                                    const index = storeSchema.indexes[j];
                                     store.createIndex(index.name, index.keyPath, { unique: index.unique });
                                 }
                             }
@@ -80,7 +85,7 @@ export class IndexedDbManager {
                     }
 
                 });
-            resolve(`${dbStore.name} is opened`);
+            resolve(`${dbStore.dbName} is opened`);
             
         });
         

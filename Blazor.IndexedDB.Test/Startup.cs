@@ -7,6 +7,15 @@ namespace Blazor.IndexedDB.Test
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddIndexedDB(dbStore =>
+            {
+                dbStore.DbName = "CowboysAreGreat";
+                dbStore.Version = 1;
+                dbStore.Stores.Add(new StoreSchema
+                {
+                    Name = "Boots"
+                });
+            });
         }
 
         public void Configure(IBlazorApplicationBuilder app)

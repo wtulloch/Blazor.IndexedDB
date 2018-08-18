@@ -1,6 +1,8 @@
 ﻿@using System.ComponentModel
 @using Blazor.IndexedDB
+@using Microsoft.AspNetCore.Blazor.Components
 @using Microsoft.JSInterop
+@inject IndexedDBManager DbManager
 <div>
     <p><b>status:</b> @Message</p>
 </div>
@@ -28,30 +30,10 @@
     string FirstName { get; set; }
     string LastName { get; set; }
 
-    private IndexedDBManager dbManager = new IndexedDBManager();
 
     protected async void OpenDatabase()
     {
-        var dbStore = new DbStore
-        {
-            Name = "TestStore",
-            Version = 2
-        };
-
-        var peopleTable = new TableSchema
-        {
-            Name = "People",
-            DbVersion = 1,
-            PrimaryKey = new IndexSpec
-            {
-                Name = "id",
-                Auto = true
-            }
-        };
-
-        peopleTable.Indexes.Add(new IndexSpec { Name = "lastName", KeyPath = "lastName" });
-        dbStore.Tables.Add(peopleTable);
-        Message = await dbManager.OpenDb(dbStore);
+        Message = await DbManager.OpenDb();
         StateHasChanged();
     }
 
@@ -60,10 +42,10 @@
         var person = new { FirstName,  LastName };
         var newRecord = new SingleRecord<object>
         {
-            Storename = "People",
+            Storename = DbManager.Stores[0].Name,
             Data = person
         };
-        var result = await dbManager.AddRecord(newRecord);
+        var result = await DbManager.AddRecord(newRecord);
         Message = result;
         LastName = "";
         FirstName = "";

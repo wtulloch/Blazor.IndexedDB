@@ -9,33 +9,41 @@ namespace Blazor.IndexedDB
 {
     public class IndexedDBManager
     {
+        private readonly DbStore _dbStore;
         private const string InteropPrefix = "TimeGhost.IndexedDbManager";
+        private bool _isOpen;
         public IndexedDBManager()
         {
+        }
+        public IndexedDBManager(DbStore dbStore)
+        {
+            _dbStore = dbStore;
 
         }
 
-       
-        public  async Task<string> CreateDb2(DbStore dbStore)
+        public List<StoreSchema> Stores => _dbStore.Stores;
+
+        public async Task<string> OpenDb()
         {
-            var result = await JSRuntime.Current.InvokeAsync<string>($"{InteropPrefix}.createDb", dbStore);
-            return result;
-        }
-        public async Task<string> OpenDb(DbStore dbName)
-        {
-            var result = await JSRuntime.Current.InvokeAsync<string>($"{InteropPrefix}.openDb", dbName);
+            var result = await JSRuntime.Current.InvokeAsync<string>($"{InteropPrefix}.openDb", _dbStore);
+            _isOpen = true;
             return result;
         }
 
         
         public async Task<string> AddRecord<T>(SingleRecord<T> recordToAdd)
         {
+            if (!_isOpen)
+            {
+                await OpenDb();
+                _isOpen = true;
+            }
             return await JSRuntime.Current.InvokeAsync<string>($"{InteropPrefix}.addRecord", recordToAdd);
         }
 
         public async Task<List<T>> GetRecords<T>(string storeName)
         {
-            return await PromiseHandler.ExecuteAsync<List<T>>(DbFunctions.getRecords, storeName);
+            throw new NotImplementedException(nameof(GetRecords));
         }
     }
 

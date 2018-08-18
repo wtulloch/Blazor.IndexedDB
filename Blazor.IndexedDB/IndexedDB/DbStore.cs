@@ -4,9 +4,9 @@ namespace Blazor.IndexedDB
 {
     public class DbStore
     {
-        public string Name { get; set; } 
+        public string DbName { get; set; } 
         public int Version { get; set; }
-        public List<TableSchema> Tables { get; } = new List<TableSchema>();
+        public List<StoreSchema> Stores { get; } = new List<StoreSchema>();
 
     }
 }
