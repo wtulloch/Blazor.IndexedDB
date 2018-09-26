@@ -7,20 +7,36 @@
     <p><b>status:</b> @Message</p>
 </div>
 <div class="d-flex flex-column align-items-start">
-    <button class="btn btn-outline-primary " onclick="@OpenDatabase">Open Database</button>
-    <div class="d-flex, flex-column">
-        <div>
-            <label>First Name</label> <input id="firstName" type="text" bind="@FirstName" />
+    <button class="btn btn-outline-primary m-4" onclick="@OpenDatabase">Open Database</button>
+    <div class="d-flex, flex-row">
+        <div class="m-4 border d-flex flex-column">
+            <div class="m-4">
+                <label>First Name</label> <input id="firstName" type="text" bind="@FirstName" />
+            </div>
+            <div class="m-4">
+                <label>Last Name</label> <input id="lastName" type="text" bind="@LastName" />
+            </div>
+            <button class="btn btn-primary m-4" onclick="@TestAddRecord">Add Record</button>
         </div>
-        <div>
-            <label>Last Name</label> <input id="lastName" type="text" bind="@LastName" />
+        <div class="m-4">
+            <ul>
+                @foreach (var person in People)
+                {
+                    <li>
+                        <div class="card">
+                            <p>FirstName: @person.FirstName</p>
+                            <p>LastName: @person.LastName</p>
+                        </div>
+                    </li>
+                }
+            </ul>
         </div>
-        <button onclick="@TestAddRecord">Add Record</button>
+       
     </div>
 
 
-   
-    
+
+
 </div>
 
 @functions
@@ -29,6 +45,9 @@
 
     string FirstName { get; set; }
     string LastName { get; set; }
+
+    List<Person> People { get; set; } = new List<Person>();
+
 
 
     protected async void OpenDatabase()
@@ -39,8 +58,8 @@
 
     protected async void TestAddRecord()
     {
-        var person = new { FirstName,  LastName };
-        var newRecord = new SingleRecord<object>
+        var person = new Person { FirstName = FirstName, LastName = LastName };
+        var newRecord = new SingleRecord<Person>
         {
             Storename = DbManager.Stores[0].Name,
             Data = person
@@ -49,10 +68,26 @@
         Message = result;
         LastName = "";
         FirstName = "";
+
+        var json = await DbManager.GetRecords<string>(DbManager.Stores[0].Name);
+        if (!string.IsNullOrEmpty(json))
+        {
+            Console.WriteLine(json as string);
+            People = Json.Deserialize<List<Person>>(json);
+        }
+        else
+        {
+            Message = "No Records found";
+        }
+
         StateHasChanged();
     }
 
-
+    public class Person
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
 
 
 }

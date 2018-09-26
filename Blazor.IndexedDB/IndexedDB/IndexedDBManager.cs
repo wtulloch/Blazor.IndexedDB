@@ -25,25 +25,32 @@ namespace Blazor.IndexedDB
 
         public async Task<string> OpenDb()
         {
-            var result = await JSRuntime.Current.InvokeAsync<string>($"{InteropPrefix}.openDb", _dbStore);
+            var result = await CallJavascript<DbStore,string>(DbFunctions.openDb, _dbStore);
             _isOpen = true;
             return result;
         }
 
-        
+       
+
         public async Task<string> AddRecord<T>(SingleRecord<T> recordToAdd)
         {
-            if (!_isOpen)
-            {
-                await OpenDb();
-                _isOpen = true;
-            }
-            return await JSRuntime.Current.InvokeAsync<string>($"{InteropPrefix}.addRecord", recordToAdd);
+            if (_isOpen) return await CallJavascript<SingleRecord<T>,string>(DbFunctions.AddRecord, recordToAdd);
+            await OpenDb();
+            _isOpen = true;
+
+            return await CallJavascript<SingleRecord<T>, string>(DbFunctions.AddRecord, recordToAdd);
         }
 
-        public async Task<List<T>> GetRecords<T>(string storeName)
+        public async Task<string> GetRecords<T>(string storeName)
         {
-            throw new NotImplementedException(nameof(GetRecords));
+            Console.WriteLine("GetRecords called");
+            await OpenDb();
+            return await CallJavascript<string, string>(DbFunctions.getRecords, storeName);
+        }
+
+        private async Task<TResult> CallJavascript<TData,TResult>(string functionName,TData data)
+        {
+            return await JSRuntime.Current.InvokeAsync<TResult>($"{InteropPrefix}.{functionName}", data);
         }
     }
 

@@ -31,7 +31,7 @@ interface IDbStore {
 export class IndexedDbManager {
     private assemblyName = 'Blazor.IndexedDB';
     private promiseCallback = 'PromiseCallback';
-    private promiseError = 'PromiseError';  public runFunction = (callbackId: string, fnName: string, data: any): boolean => {
+    private promiseError = 'PromiseError'; public runFunction = (callbackId: string, fnName: string, data: any): boolean => {
 
         console.log('Start runFunction');
 
@@ -54,7 +54,7 @@ export class IndexedDbManager {
     private isOpen = false;
     private db: PromisedDB;
 
-  
+
 
     public openDb = (data): Promise<string> => {
         var dbStore = data as IDbStore;
@@ -70,34 +70,33 @@ export class IndexedDbManager {
                                 let primaryKey = storeSchema.primaryKey;
 
                                 if (!primaryKey) {
-                                    primaryKey =  {name: 'id',keyPath: 'id', auto: true}
+                                    primaryKey = { name: 'id', keyPath: 'id', auto: true }
                                 }
                                 const store = db.createObjectStore(storeSchema.name,
                                     { keyPath: primaryKey.name, autoIncrement: primaryKey.auto });
-                               
+
                                 for (let j = 0; j < storeSchema.indexes.length; j++) {
                                     const index = storeSchema.indexes[j];
                                     store.createIndex(index.name, index.keyPath, { unique: index.unique });
                                 }
                             }
-                            
+
                         }
                     }
 
                 });
             resolve(`${dbStore.dbName} is opened`);
-            
         });
-        
+
     }
-    
+
 
     public addRecord = (record: ISingleRecord): Promise<any> => {
         const stName = record.storename;
         const itemToSave = record.data;
         //const store = this.getObjectStore(stName, 'readwrite');
         const trans = this.db.transaction(stName, 'readwrite', (tr, request) => {
-     
+           
             const store: IDBObjectStore = tr.objectStore(stName);
             console.log(store);
             const itemPromise = new Promise<any>((resolve, reject) => {
@@ -125,6 +124,37 @@ export class IndexedDbManager {
         });
     }
 
+    public getRecords = (storeName: string): Promise<any> => {
+
+        const trans = this.db.transaction(storeName,
+            "readonly",
+            (tr, getAll) => {
+                const store = tr.objectStore(storeName);
+                console.log(store);
+                const getPromise = new PromisedDB<any>((resolve, reject) => {
+                    const request = store.getAll();
+                    request.onsuccess = ev => resolve(request);
+                    request.onerror = ev => reject();
+                });
+                return getPromise;
+            });
+
+        return new Promise<any>((resolve, reject) => {
+            trans
+                .then(result => {
+                    console.log('get successful');
+                    console.log('result', result);
+
+                    resolve(result);
+                })
+                .catch(error => {
+                    //console.log(error);
+                    reject(null);
+                });
+        });
+
+
+    }
     public getObjectStore = (storeName: string, mode: 'readonly' | 'readwrite' | 'versionchange' | undefined): IDBObjectStore => {
         const tx: IDBTransaction = this.db.transaction(storeName, mode);
         return tx.objectStore(storeName);

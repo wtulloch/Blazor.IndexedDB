@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Blazor.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,10 +11,14 @@ namespace Blazor.IndexedDB.Test
             services.AddIndexedDB(dbStore =>
             {
                 dbStore.DbName = "CowboysAreGreat";
-                dbStore.Version = 1;
+                dbStore.Version = 2;
                 dbStore.Stores.Add(new StoreSchema
                 {
-                    Name = "Boots"
+                    Name = "Boots",
+                    Indexes = new List<IndexSpec>
+                    {
+                        new IndexSpec{Name="firstName", KeyPath = "firstName", Auto=false}
+                    }
                 });
             });
         }
