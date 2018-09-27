@@ -1,6 +1,6 @@
 ﻿/// <reference path="Microsoft.JSInterop.d.ts"/>
 import idb from 'idb';
-import { DB} from 'idb';
+import { DB, UpgradeDB } from 'idb';
 
 
 interface ISingleRecord {
@@ -56,73 +56,40 @@ export class IndexedDbManager {
     private db: Promise<DB> = new Promise<DB>((resolve, reject) => { });
 
     constructor() {
-       
-    }
 
+    }
 
     public openDb = (data): Promise<string> => {
         var dbStore = data as IDbStore;
         return new Promise<string>((resolve, reject) => {
             this.db = idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
-                if (upgradeDB.oldVersion < dbStore.version) {
-                    if (dbStore.stores) {
-                        for (let i = 0; i < dbStore.stores.length; i++) {
-                            const storeSchema = dbStore.stores[i];
-
-                            if (!upgradeDB.objectStoreNames.contains(storeSchema.name)) {
-                                let primaryKey = storeSchema.primaryKey;
-
-                                if (!primaryKey) {
-                                    primaryKey = { name: 'id', keyPath: 'id', auto: true }
-                                }
-                                const store = upgradeDB.createObjectStore(storeSchema.name,
-                                    { keyPath: primaryKey.name, autoIncrement: primaryKey.auto });
-
-                                for (let j = 0; j < storeSchema.indexes.length; j++) {
-                                    const index = storeSchema.indexes[j];
-                                    store.createIndex(index.name, index.keyPath, { unique: index.unique });
-                                }
-                            }
-
-                        }
-                    }
-                }
+                this.upgradeDatabase(upgradeDB, dbStore);
             });
 
             resolve('database created');
         });
+    }
+
+    public addRecord = (record: ISingleRecord): Promise<string> => {
+        return new Promise<string>((resolve, reject) => {
+            const stName = record.storename;
+            const itemToSave = record.data;
+            this.db.then(dbInstance => {
+                const tx = dbInstance.transaction(stName, 'readwrite');
+                tx.objectStore(stName).add(itemToSave)
+                    .then(value => {
+                        resolve(`Add new recorded with id ${value}`);
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        reject('Failed to add new record')
+                    });
+            });
+        })
 
     }
 
-
-    public addRecord = (record: ISingleRecord): Promise<any> => {
-        const stName = record.storename;
-        const itemToSave = record.data;
-        return this.db.then(dbInstance => {
-            const tx = dbInstance.transaction(stName, 'readwrite');
-            tx.objectStore(stName).put(itemToSave);
-            return tx.complete;
-        }
-        );
-
-        //return new Promise<any>((resolve, reject) => {
-        //    trans
-        //        .then(result => {
-        //            console.log('Insertion successful');
-        //            console.log('result', result);
-
-        //            resolve("record added");
-        //        })
-        //        .catch(error => {
-        //            console.log(error);
-        //            reject('Failed to add record');
-        //        });
-        //});
-    }
-
-    public getRecords = (storeName: string): Promise<any> => {
-
-        
+    public getRecords = (storeName: string): Promise<string> => {
         return new Promise<any>((resolve, reject) => {
             this.db.then(db => {
                 return db.transaction(storeName)
@@ -130,10 +97,32 @@ export class IndexedDbManager {
             }).then(result => {
                 var json = JSON.stringify(result);
                 resolve(json);
+            }).catch(error => {
+                console.error("Issue getting all records", error);
+                reject("failed to get records");
             });
         });
+    }
 
-        return Promise.resolve();
+    private upgradeDatabase(upgradeDB: UpgradeDB, dbStore: IDbStore) {
+        if (upgradeDB.oldVersion < dbStore.version) {
+            if (dbStore.stores) {
+                for (let i = 0; i < dbStore.stores.length; i++) {
+                    const storeSchema = dbStore.stores[i];
+                    if (!upgradeDB.objectStoreNames.contains(storeSchema.name)) {
+                        let primaryKey = storeSchema.primaryKey;
+                        if (!primaryKey) {
+                            primaryKey = { name: 'id', keyPath: 'id', auto: true };
+                        }
+                        const store = upgradeDB.createObjectStore(storeSchema.name, { keyPath: primaryKey.name, autoIncrement: primaryKey.auto });
+                        for (let j = 0; j < storeSchema.indexes.length; j++) {
+                            const index = storeSchema.indexes[j];
+                            store.createIndex(index.name, index.keyPath, { unique: index.unique });
+                        }
+                    }
+                }
+            }
+        }
     }
     //public getObjectStore = (storeName: string, mode: 'readonly' | 'readwrite' | 'versionchange' | undefined): IDBObjectStore => {
     //    const tx: IDBTransaction = this.db.transaction(storeName, mode);

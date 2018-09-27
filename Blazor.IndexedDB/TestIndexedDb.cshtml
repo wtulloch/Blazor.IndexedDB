@@ -8,7 +8,7 @@
 </div>
 <div class="d-flex flex-column align-items-start">
     <button class="btn btn-outline-primary m-4" onclick="@OpenDatabase">Open Database</button>
-    <div class="d-flex, flex-row">
+    <div class="d-flex, flex-column">
         <div class="m-4 border d-flex flex-column">
             <div class="m-4">
                 <label>First Name</label> <input id="firstName" type="text" bind="@FirstName" />
@@ -23,7 +23,8 @@
                 @foreach (var person in People)
                 {
                     <li>
-                        <div class="card">
+                        <div class="card" style="margin:5px">
+                           @* <p>Id: @person.Id</p>*@
                             <p>FirstName: @person.FirstName</p>
                             <p>LastName: @person.LastName</p>
                         </div>
@@ -84,8 +85,10 @@
 
     public class Person
     {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        
     }
 
 
