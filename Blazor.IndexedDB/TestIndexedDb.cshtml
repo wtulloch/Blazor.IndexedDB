@@ -69,11 +69,10 @@
         LastName = "";
         FirstName = "";
 
-        var json = await DbManager.GetRecords<string>(DbManager.Stores[0].Name);
-        if (!string.IsNullOrEmpty(json))
+        var results = await DbManager.GetRecords<Person>(DbManager.Stores[0].Name);
+        if (results.Any())
         {
-            Console.WriteLine(json as string);
-            People = Json.Deserialize<List<Person>>(json);
+            People = results;
         }
         else
         {

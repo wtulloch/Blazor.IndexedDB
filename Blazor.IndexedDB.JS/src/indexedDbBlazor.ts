@@ -1,5 +1,6 @@
 ﻿/// <reference path="Microsoft.JSInterop.d.ts"/>
-import PromisedDB from 'promised-db';
+import idb from 'idb';
+import { DB} from 'idb';
 
 
 interface ISingleRecord {
@@ -52,27 +53,29 @@ export class IndexedDbManager {
         return true;
     }
     private isOpen = false;
-    private db: PromisedDB;
+    private db: Promise<DB> = new Promise<DB>((resolve, reject) => { });
 
+    constructor() {
+       
+    }
 
 
     public openDb = (data): Promise<string> => {
         var dbStore = data as IDbStore;
         return new Promise<string>((resolve, reject) => {
-            this.db = new PromisedDB(dbStore.dbName, dbStore.version,
-                (db, onDiskVersion, newVersion) => {
-
+            this.db = idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
+                if (upgradeDB.oldVersion < dbStore.version) {
                     if (dbStore.stores) {
                         for (let i = 0; i < dbStore.stores.length; i++) {
                             const storeSchema = dbStore.stores[i];
 
-                            if (!db.objectStoreNames.contains(storeSchema.name)) {
+                            if (!upgradeDB.objectStoreNames.contains(storeSchema.name)) {
                                 let primaryKey = storeSchema.primaryKey;
 
                                 if (!primaryKey) {
                                     primaryKey = { name: 'id', keyPath: 'id', auto: true }
                                 }
-                                const store = db.createObjectStore(storeSchema.name,
+                                const store = upgradeDB.createObjectStore(storeSchema.name,
                                     { keyPath: primaryKey.name, autoIncrement: primaryKey.auto });
 
                                 for (let j = 0; j < storeSchema.indexes.length; j++) {
@@ -83,9 +86,10 @@ export class IndexedDbManager {
 
                         }
                     }
+                }
+            });
 
-                });
-            resolve(`${dbStore.dbName} is opened`);
+            resolve('database created');
         });
 
     }
@@ -94,71 +98,47 @@ export class IndexedDbManager {
     public addRecord = (record: ISingleRecord): Promise<any> => {
         const stName = record.storename;
         const itemToSave = record.data;
-        //const store = this.getObjectStore(stName, 'readwrite');
-        const trans = this.db.transaction(stName, 'readwrite', (tr, request) => {
-           
-            const store: IDBObjectStore = tr.objectStore(stName);
-            console.log(store);
-            const itemPromise = new Promise<any>((resolve, reject) => {
-                const request = store.add(itemToSave);
+        return this.db.then(dbInstance => {
+            const tx = dbInstance.transaction(stName, 'readwrite');
+            tx.objectStore(stName).put(itemToSave);
+            return tx.complete;
+        }
+        );
 
-                request.onsuccess = ev => resolve();
-                request.onerror = ev => reject();
-            });
+        //return new Promise<any>((resolve, reject) => {
+        //    trans
+        //        .then(result => {
+        //            console.log('Insertion successful');
+        //            console.log('result', result);
 
-            return itemPromise;
-        });
-
-        return new Promise<any>((resolve, reject) => {
-            trans
-                .then(result => {
-                    console.log('Insertion successful');
-                    console.log('result', result);
-
-                    resolve("record added");
-                })
-                .catch(error => {
-                    //console.log(error);
-                    reject('Failed to add record');
-                });
-        });
+        //            resolve("record added");
+        //        })
+        //        .catch(error => {
+        //            console.log(error);
+        //            reject('Failed to add record');
+        //        });
+        //});
     }
 
     public getRecords = (storeName: string): Promise<any> => {
 
-        const trans = this.db.transaction(storeName,
-            "readonly",
-            (tr, getAll) => {
-                const store = tr.objectStore(storeName);
-                console.log(store);
-                const getPromise = new PromisedDB<any>((resolve, reject) => {
-                    const request = store.getAll();
-                    request.onsuccess = ev => resolve(request);
-                    request.onerror = ev => reject();
-                });
-                return getPromise;
-            });
-
+        
         return new Promise<any>((resolve, reject) => {
-            trans
-                .then(result => {
-                    console.log('get successful');
-                    console.log('result', result);
-
-                    resolve(result);
-                })
-                .catch(error => {
-                    //console.log(error);
-                    reject(null);
-                });
+            this.db.then(db => {
+                return db.transaction(storeName)
+                    .objectStore(storeName).getAll();
+            }).then(result => {
+                var json = JSON.stringify(result);
+                resolve(json);
+            });
         });
 
-
+        return Promise.resolve();
     }
-    public getObjectStore = (storeName: string, mode: 'readonly' | 'readwrite' | 'versionchange' | undefined): IDBObjectStore => {
-        const tx: IDBTransaction = this.db.transaction(storeName, mode);
-        return tx.objectStore(storeName);
-    }
+    //public getObjectStore = (storeName: string, mode: 'readonly' | 'readwrite' | 'versionchange' | undefined): IDBObjectStore => {
+    //    const tx: IDBTransaction = this.db.transaction(storeName, mode);
+    //    return tx.objectStore(storeName);
+    //}
 
 
 

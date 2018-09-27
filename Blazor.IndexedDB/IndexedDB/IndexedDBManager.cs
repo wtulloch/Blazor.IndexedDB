@@ -41,11 +41,13 @@ namespace Blazor.IndexedDB
             return await CallJavascript<SingleRecord<T>, string>(DbFunctions.AddRecord, recordToAdd);
         }
 
-        public async Task<string> GetRecords<T>(string storeName)
+        public async Task<List<T>> GetRecords<T>(string storeName)
         {
             Console.WriteLine("GetRecords called");
             await OpenDb();
-            return await CallJavascript<string, string>(DbFunctions.getRecords, storeName);
+            var results = await CallJavascript<string, string>(DbFunctions.getRecords, storeName);
+            Console.WriteLine(results);
+            return Json.Deserialize<List<T>>(results);
         }
 
         private async Task<TResult> CallJavascript<TData,TResult>(string functionName,TData data)
