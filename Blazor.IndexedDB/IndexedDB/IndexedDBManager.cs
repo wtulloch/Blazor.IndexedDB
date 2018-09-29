@@ -30,8 +30,6 @@ namespace Blazor.IndexedDB
             return result;
         }
 
-       
-
         public async Task<string> AddRecord<T>(SingleRecord<T> recordToAdd)
         {
             if (!_isOpen) 
@@ -46,6 +44,13 @@ namespace Blazor.IndexedDB
             var results = await CallJavascript<string, string>(DbFunctions.getRecords, storeName);
             Console.WriteLine(results);
             return Json.Deserialize<List<T>>(results);
+        }
+
+        public async Task<T> GetRecordById<T>(string storeName, string id)
+        {
+            var data = new SingleRecord<string> { Storename = storeName, Data = id };
+            var record = await CallJavascript<SingleRecord<string>, string>(DbFunctions.GetRecordById,data );
+            return Json.Deserialize<T>(record);
         }
 
         private async Task<TResult> CallJavascript<TData,TResult>(string functionName,TData data)
@@ -66,6 +71,7 @@ namespace Blazor.IndexedDB
         public const string AddRecord = "addRecord";
         public const string getRecords = "getRecords";
         public const string openDb = "openDb";
+        public const string GetRecordById = "getRecordById";
     }
 }
 

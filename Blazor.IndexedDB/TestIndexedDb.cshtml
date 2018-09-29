@@ -6,36 +6,42 @@
 <div>
     <p><b>status:</b> @Message</p>
 </div>
-<div class="d-flex flex-column align-items-start">
-    <button class="btn btn-outline-primary m-4" onclick="@OpenDatabase">Open Database</button>
+<div class="d-flex flex-row align-items-start">
+    <div class="d-flex flex-column">
+        <button class="btn btn-outline-primary m-4" onclick="@OpenDatabase">Open Database</button>
+        <button class="btn btn-outline-primary m-4" onclick="@GetRecords">Get Records</button>
+    </div>
+    
     <div class="d-flex, flex-column">
         <div class="m-4 border d-flex flex-column">
             <div class="m-4">
-                <label>First Name</label> <input id="firstName" type="text" bind="@FirstName" />
+                <label>First Name</label> <input id="firstName" type="text" bind="@CurrentPerson.FirstName" />
             </div>
             <div class="m-4">
-                <label>Last Name</label> <input id="lastName" type="text" bind="@LastName" />
+                <label>Last Name</label> <input id="lastName" type="text" bind="@CurrentPerson.LastName" />
             </div>
             <button class="btn btn-primary m-4" onclick="@TestAddRecord">Add Record</button>
         </div>
-        <div class="m-4">
-            <ul>
-                @foreach (var person in People)
-                {
-                    <li>
-                        <div class="card" style="margin:5px">
-                           @* <p>Id: @person.Id</p>*@
-                            <p>FirstName: @person.FirstName</p>
-                            <p>LastName: @person.LastName</p>
-                        </div>
-                    </li>
-                }
-            </ul>
-        </div>
-       
     </div>
 
-
+    <div class="d-flex flex-row flex-wrap">
+       
+            @foreach (var person in People)
+            {
+                
+                    <div class="card" style="margin:5px; padding:5px; width:200px">
+                        @* <p>Id: @person.Id</p>*@
+                        <p>FirstName: @person.FirstName</p>
+                        <p>LastName: @person.LastName</p> 
+                        <div>
+                            <button class="btn btn-outline-primary" onclick="@(() => EditPerson(person.Id))">Edit</button>
+                            <button class="btn btn-outline-warning">Delete</button>
+                        </div>
+                    </div>
+                
+            }
+        
+    </div>
 
 
 </div>
@@ -44,8 +50,7 @@
 {
     string Message { get; set; }
 
-    string FirstName { get; set; }
-    string LastName { get; set; }
+    Person CurrentPerson { get; set; } = new Person();
 
     List<Person> People { get; set; } = new List<Person>();
 
@@ -57,19 +62,8 @@
         StateHasChanged();
     }
 
-    protected async void TestAddRecord()
+    protected async void GetRecords()
     {
-        var person = new Person { FirstName = FirstName, LastName = LastName };
-        var newRecord = new SingleRecord<Person>
-        {
-            Storename = DbManager.Stores[0].Name,
-            Data = person
-        };
-        var result = await DbManager.AddRecord(newRecord);
-        Message = result;
-        LastName = "";
-        FirstName = "";
-
         var results = await DbManager.GetRecords<Person>(DbManager.Stores[0].Name);
         if (results.Any())
         {
@@ -83,12 +77,41 @@
         StateHasChanged();
     }
 
+    protected async Task EditPerson(string id)
+    {
+        try
+        {
+            CurrentPerson = await DbManager.GetRecordById<Person>(DbManager.Stores[0].Name, id);
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
+    protected async void TestAddRecord()
+    {
+        var newRecord = new SingleRecord<Person>
+        {
+            Storename = DbManager.Stores[0].Name,
+            Data = CurrentPerson
+        };
+        var result = await DbManager.AddRecord(newRecord);
+        Message = result;
+        CurrentPerson = new Person();
+
+        GetRecords();
+
+        StateHasChanged();
+    }
+
     public class Person
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        
+
     }
 
 

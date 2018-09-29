@@ -90,7 +90,7 @@ export class IndexedDbManager {
     }
 
     public getRecords = (storeName: string): Promise<string> => {
-        return new Promise<any>((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             this.db.then(db => {
                 return db.transaction(storeName)
                     .objectStore(storeName).getAll();
@@ -100,6 +100,23 @@ export class IndexedDbManager {
             }).catch(error => {
                 console.error("Issue getting all records", error);
                 reject("failed to get records");
+            });
+        });
+    }
+
+    public getRecordById = (data: ISingleRecord): Promise<string> => {
+        return new Promise<string>((resolve, reject) => {
+            const storeName = data.storename;
+            const id = data.data;
+            this.db.then(db => {
+                return db.transaction(storeName, "readonly")
+                    .objectStore(storeName).get(id);
+            }).then(result => {
+                var json = JSON.stringify(result);
+                resolve(json);
+            }).catch(error => {
+                console.error(`failed to get record: ${id}`, error);
+                reject(`failed to get record: ${id}`);
             });
         });
     }
