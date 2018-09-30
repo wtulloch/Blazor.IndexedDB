@@ -1,9 +1,9 @@
 ﻿/// <reference path="Microsoft.JSInterop.d.ts"/>
-import idb from 'idb';
+import idb, { Transaction } from 'idb';
 import { DB, UpgradeDB } from 'idb';
 
 
-interface ISingleRecord {
+interface IStoreRecord {
     storename: string;
     data: object;
 }
@@ -31,14 +31,14 @@ interface IDbStore {
 
 export class IndexedDbManager {
     private isOpen = false;
-    private db: Promise<DB> = new Promise<DB>((resolve, reject) => { });
+    private dbPromise: Promise<DB> = new Promise<DB>((resolve, reject) => { });
 
     constructor() {}
 
     public openDb = (data): Promise<string> => {
         var dbStore = data as IDbStore;
         return new Promise<string>((resolve, reject) => {
-            this.db = idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
+            this.dbPromise = idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
                 this.upgradeDatabase(upgradeDB, dbStore);
             });
 
@@ -46,75 +46,75 @@ export class IndexedDbManager {
         });
     }
 
-    public addRecord = (record: ISingleRecord): Promise<string> => {
-        return new Promise<string>((resolve, reject) => {
-            const stName = record.storename;
-            const itemToSave = record.data;
-            this.db.then(dbInstance => {
-                const tx = dbInstance.transaction(stName, 'readwrite');
-                tx.objectStore(stName).add(itemToSave)
-                    .then(value => {
-                        resolve(`Add new recorded with id ${value}`);
-                    })
-                    .catch(error => {
-                        console.error(error);
-                        reject('Failed to add new record')
-                    });
-            });
-        })
+    public addRecordAsync = async (record: IStoreRecord): Promise<string> => {
+        const stName = record.storename;
+        const itemToSave = record.data;
+        const dbInstance = await this.dbPromise;
+        const tx = dbInstance.transaction(stName, 'readwrite');
+        let returnValue: string;
 
+        try {
+            const result = await tx.objectStore(stName).add(itemToSave);
+            returnValue = `Added new record with id ${result}`;
+        } catch (err) {
+            console.log("Error adding recording:", err.message)
+            returnValue = 'Failed to add new record';
+        }
+
+        return returnValue;
     }
-    public updateRecord = (record: ISingleRecord): Promise<string> => {
-        return new Promise<string>((resolve, reject) => {
-            const stName = record.storename;
-            const itemToSave = record.data;
-            this.db.then(dbInstance => {
-                const tx = dbInstance.transaction(stName, 'readwrite');
-                tx.objectStore(stName).put(itemToSave)
-                    .then(value => {
-                        resolve(`updated record with id ${value}`);
-                    })
-                    .catch(error => {
-                        console.error(error);
-                        reject('Failed to add new record')
-                    });
-            });
-        })
+    public updateRecord = async (record: IStoreRecord): Promise<string> => {
+        const stName = record.storename;
+        const itemToSave = record.data;
+        const dbInstance = await this.dbPromise;
+        const tx = dbInstance.transaction(stName, 'readwrite');
+        let returnValue: string;
 
+        try {
+            const result = await tx.objectStore(stName).put(itemToSave);
+            returnValue = `updated record with id ${result}`;
+        } catch (err) {
+            console.log("Error adding recording:", err.message)
+            returnValue = 'Failed to update record';
+        }
+
+        return returnValue;
     }
 
-    public getRecords = (storeName: string): Promise<string> => {
-        return new Promise<string>((resolve, reject) => {
-            this.db.then(db => {
-                return db.transaction(storeName)
-                    .objectStore(storeName).getAll();
-            }).then(result => {
-                var json = JSON.stringify(result);
-                resolve(json);
-            }).catch(error => {
-                console.error("Issue getting all records", error);
-                reject("failed to get records");
-            });
-        });
+    public getRecords = async (storeName: string): Promise<string> => {
+        const dbInstance = await this.dbPromise;
+        let returnValue: string;
+
+        try {
+            let results = await dbInstance.transaction(storeName).objectStore(storeName).getAll();
+            returnValue = JSON.stringify(results);
+        } catch (err) {
+            console.error("Issue getting all records", err);
+            returnValue = "failed to get records";
+        }
+
+        return returnValue;
     }
 
-    public getRecordById = (data: ISingleRecord): Promise<string> => {
-        return new Promise<string>((resolve, reject) => {
-            const storeName = data.storename;
-            const id = data.data;
-            this.db.then(db => {
-                return db.transaction(storeName, "readonly")
-                    .objectStore(storeName).get(id);
-            }).then(result => {
-                var json = JSON.stringify(result);
-                resolve(json);
-            }).catch(error => {
-                console.error(`failed to get record: ${id}`, error);
-                reject(`failed to get record: ${id}`);
-            });
-        });
+    public getRecordById = async (data: IStoreRecord): Promise<string> => {
+        const storeName = data.storename;
+        const id = data.data;
+        const dbInstance = await this.dbPromise;
+        let returnValue: string;
+
+        try {
+            let result = await dbInstance.transaction(storeName, 'readonly')
+                .objectStore(storeName).get(id);
+            returnValue = JSON.stringify(result);
+        } catch (err) {
+            console.error(`failed to get record: ${id}`, err);
+            returnValue = `failed to get record: ${id}`;
+        }
+
+        return returnValue;
     }
 
+ 
     private upgradeDatabase(upgradeDB: UpgradeDB, dbStore: IDbStore) {
         if (upgradeDB.oldVersion < dbStore.version) {
             if (dbStore.stores) {

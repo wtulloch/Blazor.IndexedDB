@@ -82,7 +82,7 @@ namespace Blazor.IndexedDB
     public struct DbFunctions
     {
         public const string CreateDb = "createDb";
-        public const string AddRecord = "addRecord";
+        public const string AddRecord = "addRecordAsync";
         public const string UpdateRecord = "updateRecord";
         public const string GetRecords = "getRecords";
         public const string OpenDb = "openDb";
