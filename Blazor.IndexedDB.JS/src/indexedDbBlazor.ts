@@ -5,7 +5,7 @@ import { DB, UpgradeDB } from 'idb';
 
 interface IStoreRecord {
     storename: string;
-    data: object;
+    data: any;
 }
 
 interface IIndexSpec {
@@ -46,7 +46,7 @@ export class IndexedDbManager {
         });
     }
 
-    public addRecordAsync = async (record: IStoreRecord): Promise<string> => {
+    public addRecord = async (record: IStoreRecord): Promise<string> => {
         const stName = record.storename;
         const itemToSave = record.data;
         const dbInstance = await this.dbPromise;
@@ -112,6 +112,22 @@ export class IndexedDbManager {
         }
 
         return returnValue;
+    }
+
+    public deleteRecord = async (data: IStoreRecord): Promise<string> => {
+        const storeName = data.storename;
+        const id = data.data;
+        const dbInstance = await this.dbPromise;
+        const tx = dbInstance.transaction(storeName, 'readwrite');
+
+        try {
+            await tx.objectStore(storeName).delete(id); 
+            await tx.complete;
+            return 'Record deleted';
+        } catch (err) {
+            console.error('failed to delete record', err);
+            return 'Failed to delete record';
+        }
     }
 
  

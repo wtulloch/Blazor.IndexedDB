@@ -35,7 +35,7 @@
                         <p>LastName: @person.LastName</p> 
                         <div>
                             <button class="btn btn-outline-primary" onclick="@(() => EditPerson(person.Id))">Edit</button>
-                            <button class="btn btn-outline-warning">Delete</button>
+                            <button class="btn btn-outline-warning" onclick="@(() => DeleteRecord(person.Id))">Delete</button>
                         </div>
                     </div>
                 
@@ -115,6 +115,13 @@
         GetRecords();
 
         StateHasChanged();
+    }
+
+    protected async Task DeleteRecord(string id)
+    {
+        Message = await DbManager.DeleteRecord(DbManager.Stores[0].Name, id);
+
+        GetRecords();
     }
 
     public class Person

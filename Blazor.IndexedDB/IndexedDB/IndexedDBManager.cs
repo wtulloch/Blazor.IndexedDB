@@ -43,6 +43,8 @@ namespace Blazor.IndexedDB
             return await CallJavascript<StoreRecord<T>, string>(DbFunctions.UpdateRecord, recordToUpdate);
         }
 
+      
+
         public async Task<List<T>> GetRecords<T>(string storeName)
         {
             if (!_isOpen)
@@ -58,6 +60,13 @@ namespace Blazor.IndexedDB
             var data = new StoreRecord<string> { Storename = storeName, Data = id };
             var record = await CallJavascript<StoreRecord<string>, string>(DbFunctions.GetRecordById,data );
             return Json.Deserialize<T>(record);
+        }
+
+        public async Task<string> DeleteRecord(string storeName, string id)
+        {
+            var data = new StoreRecord<string> { Storename = storeName, Data = id };
+            var result = await CallJavascript<StoreRecord<string>, string>(DbFunctions.DeleteRecord, data);
+            return result;
         }
 
         private async Task<TResult> CallJavascript<TData,TResult>(string functionName,TData data)
@@ -82,7 +91,7 @@ namespace Blazor.IndexedDB
     public struct DbFunctions
     {
         public const string CreateDb = "createDb";
-        public const string AddRecord = "addRecordAsync";
+        public const string AddRecord = "addRecord";
         public const string UpdateRecord = "updateRecord";
         public const string GetRecords = "getRecords";
         public const string OpenDb = "openDb";
