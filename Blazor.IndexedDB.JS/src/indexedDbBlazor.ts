@@ -64,6 +64,24 @@ export class IndexedDbManager {
         })
 
     }
+    public updateRecord = (record: ISingleRecord): Promise<string> => {
+        return new Promise<string>((resolve, reject) => {
+            const stName = record.storename;
+            const itemToSave = record.data;
+            this.db.then(dbInstance => {
+                const tx = dbInstance.transaction(stName, 'readwrite');
+                tx.objectStore(stName).put(itemToSave)
+                    .then(value => {
+                        resolve(`updated record with id ${value}`);
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        reject('Failed to add new record')
+                    });
+            });
+        })
+
+    }
 
     public getRecords = (storeName: string): Promise<string> => {
         return new Promise<string>((resolve, reject) => {

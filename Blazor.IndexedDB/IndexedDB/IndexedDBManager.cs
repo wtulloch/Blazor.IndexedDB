@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 
@@ -18,7 +15,6 @@ namespace Blazor.IndexedDB
         public IndexedDBManager(DbStore dbStore)
         {
             _dbStore = dbStore;
-
         }
 
         public List<StoreSchema> Stores => _dbStore.Stores;
@@ -37,12 +33,20 @@ namespace Blazor.IndexedDB
             return await CallJavascript<SingleRecord<T>, string>(DbFunctions.AddRecord, recordToAdd);
         }
 
+        public async Task<string> UpdateRecord<T>(SingleRecord<T> recordToUpdate)
+        {
+            if (!_isOpen)
+                await OpenDb();
+            return await CallJavascript<SingleRecord<T>, string>(DbFunctions.UpdateRecord, recordToUpdate);
+        }
+
         public async Task<List<T>> GetRecords<T>(string storeName)
         {
-            Console.WriteLine("GetRecords called");
-          
+            if (!_isOpen)
+                await OpenDb();
+
             var results = await CallJavascript<string, string>(DbFunctions.getRecords, storeName);
-            Console.WriteLine(results);
+
             return Json.Deserialize<List<T>>(results);
         }
 
@@ -69,6 +73,7 @@ namespace Blazor.IndexedDB
     {
         public const string CreateDb = "createDb";
         public const string AddRecord = "addRecord";
+        public const string UpdateRecord = "updateRecord";
         public const string getRecords = "getRecords";
         public const string openDb = "openDb";
         public const string GetRecordById = "getRecordById";
