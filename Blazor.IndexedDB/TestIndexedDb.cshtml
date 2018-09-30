@@ -20,7 +20,7 @@
             <div class="m-4">
                 <label>Last Name</label> <input id="lastName" type="text" bind="@CurrentPerson.LastName" />
             </div>
-            <button class="btn btn-primary m-4" onclick="@TestAddRecord">Add Record</button>
+            <button class="btn btn-primary m-4" onclick="@TestAddRecord">Add/Update Record</button>
         </div>
     </div>
 
@@ -92,12 +92,22 @@
 
     protected async void TestAddRecord()
     {
-        var newRecord = new SingleRecord<Person>
+        var newRecord = new StoreRecord<Person>
         {
             Storename = DbManager.Stores[0].Name,
             Data = CurrentPerson
         };
-        var result = await DbManager.AddRecord(newRecord);
+
+        string result;
+        if (string.IsNullOrEmpty(CurrentPerson.Id))
+        {
+            result = await DbManager.AddRecord(newRecord);
+        }
+        else
+        {
+            result = await DbManager.UpdateRecord(newRecord);
+        }
+
         Message = result;
         CurrentPerson = new Person();
 

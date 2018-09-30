@@ -4,6 +4,9 @@ using Microsoft.JSInterop;
 
 namespace Blazor.IndexedDB
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class IndexedDBManager
     {
         private readonly DbStore _dbStore;
@@ -21,23 +24,23 @@ namespace Blazor.IndexedDB
 
         public async Task<string> OpenDb()
         {
-            var result = await CallJavascript<DbStore,string>(DbFunctions.openDb, _dbStore);
+            var result = await CallJavascript<DbStore,string>(DbFunctions.OpenDb, _dbStore);
             _isOpen = true;
             return result;
         }
 
-        public async Task<string> AddRecord<T>(SingleRecord<T> recordToAdd)
+        public async Task<string> AddRecord<T>(StoreRecord<T> recordToAdd)
         {
             if (!_isOpen) 
             await OpenDb();
-            return await CallJavascript<SingleRecord<T>, string>(DbFunctions.AddRecord, recordToAdd);
+            return await CallJavascript<StoreRecord<T>, string>(DbFunctions.AddRecord, recordToAdd);
         }
 
-        public async Task<string> UpdateRecord<T>(SingleRecord<T> recordToUpdate)
+        public async Task<string> UpdateRecord<T>(StoreRecord<T> recordToUpdate)
         {
             if (!_isOpen)
                 await OpenDb();
-            return await CallJavascript<SingleRecord<T>, string>(DbFunctions.UpdateRecord, recordToUpdate);
+            return await CallJavascript<StoreRecord<T>, string>(DbFunctions.UpdateRecord, recordToUpdate);
         }
 
         public async Task<List<T>> GetRecords<T>(string storeName)
@@ -45,15 +48,15 @@ namespace Blazor.IndexedDB
             if (!_isOpen)
                 await OpenDb();
 
-            var results = await CallJavascript<string, string>(DbFunctions.getRecords, storeName);
+            var results = await CallJavascript<string, string>(DbFunctions.GetRecords, storeName);
 
             return Json.Deserialize<List<T>>(results);
         }
 
         public async Task<T> GetRecordById<T>(string storeName, string id)
         {
-            var data = new SingleRecord<string> { Storename = storeName, Data = id };
-            var record = await CallJavascript<SingleRecord<string>, string>(DbFunctions.GetRecordById,data );
+            var data = new StoreRecord<string> { Storename = storeName, Data = id };
+            var record = await CallJavascript<StoreRecord<string>, string>(DbFunctions.GetRecordById,data );
             return Json.Deserialize<T>(record);
         }
 
@@ -63,19 +66,27 @@ namespace Blazor.IndexedDB
         }
     }
 
-    public class SingleRecord<T>
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class StoreRecord<T>
     {
         public string Storename { get; set; }
         public T Data { get; set; }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public struct DbFunctions
     {
         public const string CreateDb = "createDb";
         public const string AddRecord = "addRecord";
         public const string UpdateRecord = "updateRecord";
-        public const string getRecords = "getRecords";
-        public const string openDb = "openDb";
+        public const string GetRecords = "getRecords";
+        public const string OpenDb = "openDb";
+        public const string DeleteRecord = "deleteRecord";
         public const string GetRecordById = "getRecordById";
     }
 }
