@@ -30,34 +30,10 @@ interface IDbStore {
 }
 
 export class IndexedDbManager {
-    private assemblyName = 'Blazor.IndexedDB';
-    private promiseCallback = 'PromiseCallback';
-    private promiseError = 'PromiseError'; public runFunction = (callbackId: string, fnName: string, data: any): boolean => {
-
-        console.log('Start runFunction');
-
-        const promise = this[fnName](data);
-
-        promise.then(value => {
-            if (value === undefined) {
-                value = '';
-            }
-            const result = JSON.stringify(value);
-            DotNet.invokeMethodAsync(this.assemblyName, this.promiseCallback, callbackId, result);
-        })
-            .catch(reason => {
-                const result = JSON.stringify(reason);
-                DotNet.invokeMethodAsync(this.assemblyName, this.promiseError, callbackId, result);
-            });
-
-        return true;
-    }
     private isOpen = false;
     private db: Promise<DB> = new Promise<DB>((resolve, reject) => { });
 
-    constructor() {
-
-    }
+    constructor() {}
 
     public openDb = (data): Promise<string> => {
         var dbStore = data as IDbStore;
@@ -141,11 +117,4 @@ export class IndexedDbManager {
             }
         }
     }
-    //public getObjectStore = (storeName: string, mode: 'readonly' | 'readwrite' | 'versionchange' | undefined): IDBObjectStore => {
-    //    const tx: IDBTransaction = this.db.transaction(storeName, mode);
-    //    return tx.objectStore(storeName);
-    //}
-
-
-
 }
