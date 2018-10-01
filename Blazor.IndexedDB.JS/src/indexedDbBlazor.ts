@@ -1,6 +1,6 @@
 ﻿/// <reference path="Microsoft.JSInterop.d.ts"/>
 import idb, { Transaction } from 'idb';
-import { DB, UpgradeDB } from 'idb';
+import { DB, UpgradeDB, ObjectStore } from 'idb';
 
 
 interface IStoreRecord {
@@ -48,17 +48,12 @@ export class IndexedDbManager {
 
     public addRecord = async (record: IStoreRecord): Promise<string> => {
         const stName = record.storename;
-        const itemToSave = record.data;
+        let itemToSave = record.data;
         const dbInstance = await this.dbPromise;
         const tx = dbInstance.transaction(stName, 'readwrite');
         const objectStore = tx.objectStore(stName);
-        const keyPath = objectStore.keyPath as string;
-
-        // if a keyPath is defined with auto increment true and data object has a corresponding
-        //property that is null or defined it needs to be removed otherwise autoincrement will fail.
-        if (keyPath && objectStore.autoIncrement && !itemToSave[keyPath]) {
-            delete itemToSave[keyPath];
-        }
+        //currently assume that primary key is not an aggregate key. 
+         itemToSave = this.checkForKeyPath(objectStore, itemToSave);
 
         let returnValue: string;
         try {
@@ -139,6 +134,23 @@ export class IndexedDbManager {
     }
 
  
+    private checkForKeyPath(objectStore: ObjectStore<any, any>, data: any) {
+        if (!objectStore.autoIncrement || !objectStore.keyPath) {
+            return data;
+        }
+
+        if ( typeof objectStore.keyPath !== 'string' ) {
+            return data;
+        }
+
+        const keyPath = objectStore.keyPath as string;
+       
+        if (!data[keyPath]) {
+            delete data[keyPath];
+        }
+        return data;
+    }
+
     private upgradeDatabase(upgradeDB: UpgradeDB, dbStore: IDbStore) {
         if (upgradeDB.oldVersion < dbStore.version) {
             if (dbStore.stores) {
