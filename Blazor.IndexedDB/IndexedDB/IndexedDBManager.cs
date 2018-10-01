@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 
@@ -55,17 +56,18 @@ namespace TG.Blazor.IndexedDB
             return Json.Deserialize<List<T>>(results);
         }
 
-        public async Task<T> GetRecordById<T>(string storeName, string id)
+        public async Task<TResult> GetRecordById<TInput, TResult>(string storeName, TInput id)
         {
-            var data = new StoreRecord<string> { Storename = storeName, Data = id };
-            var record = await CallJavascript<StoreRecord<string>, string>(DbFunctions.GetRecordById,data );
-            return Json.Deserialize<T>(record);
+            var data = new { Storename = storeName, Data = id };
+            var record = await CallJavascript<object, string>(DbFunctions.GetRecordById,data );
+            Console.WriteLine(Json.Serialize(record));
+            return Json.Deserialize<TResult>(record);
         }
 
-        public async Task<string> DeleteRecord(string storeName, string id)
+        public async Task<string> DeleteRecord<TInput>(string storeName, TInput id)
         {
-            var data = new StoreRecord<string> { Storename = storeName, Data = id };
-            var result = await CallJavascript<StoreRecord<string>, string>(DbFunctions.DeleteRecord, data);
+            var data = new StoreRecord<TInput> { Storename = storeName, Data = id };
+            var result = await CallJavascript<StoreRecord<TInput>, string>(DbFunctions.DeleteRecord, data);
             return result;
         }
 

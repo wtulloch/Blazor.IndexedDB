@@ -51,10 +51,18 @@ export class IndexedDbManager {
         const itemToSave = record.data;
         const dbInstance = await this.dbPromise;
         const tx = dbInstance.transaction(stName, 'readwrite');
-        let returnValue: string;
+        const objectStore = tx.objectStore(stName);
+        const keyPath = objectStore.keyPath as string;
 
+        // if a keyPath is defined with auto increment true and data object has a corresponding
+        //property that is null or defined it needs to be removed otherwise autoincrement will fail.
+        if (keyPath && objectStore.autoIncrement && !itemToSave[keyPath]) {
+            delete itemToSave[keyPath];
+        }
+
+        let returnValue: string;
         try {
-            const result = await tx.objectStore(stName).add(itemToSave);
+            const result = await objectStore.add(itemToSave);
             returnValue = `Added new record with id ${result}`;
         } catch (err) {
             console.log("Error adding recording:", err.message)
