@@ -6,6 +6,7 @@
     <IsPackable>true</IsPackable>
     <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
     <LangVersion>7.3</LangVersion>
+    <AssemblyName>TG.Blazor.IndexedDB</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

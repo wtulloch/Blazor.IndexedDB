@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.IndexedDB.Test", "Blazor.IndexedDB.Test\Blazor.IndexedDB.Test.csproj", "{DC89525B-3480-471D-894A-4C2FB215BDE3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.IndexedDB", "Blazor.IndexedDB\Blazor.IndexedDB.csproj", "{E583B20E-C255-4CCC-9B8C-4BD991BDF677}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TG.Blazor.IndexedDB", "Blazor.IndexedDB\TG.Blazor.IndexedDB.csproj", "{E583B20E-C255-4CCC-9B8C-4BD991BDF677}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.IndexedDB.JS", "Blazor.IndexedDB.JS\Blazor.IndexedDB.JS.csproj", "{77FA35AB-768B-4848-BC29-3315AE002F3B}"
 EndProject
