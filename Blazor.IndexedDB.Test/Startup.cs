@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Blazor.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using TG.Blazor.IndexedDB;
 
 namespace Blazor.IndexedDB.Test
 {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Blazor.IndexedDB
+namespace TG.Blazor.IndexedDB
 {
     public class DbStore
     {

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 
-namespace Blazor.IndexedDB
+namespace TG.Blazor.IndexedDB
 {
     /// <summary>
     /// 
