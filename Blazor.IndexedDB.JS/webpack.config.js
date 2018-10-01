@@ -2,11 +2,10 @@
 const webpack = require('webpack');
 
 module.exports = {
-    mode: 'production',
     resolve: {
         extensions: ['.ts', '.js']
     },
-    devtool: 'inline-source-map',
+    devtool: args.mode === 'development' ? 'inline-source-map' : 'none',
     module: {
         rules: [
             {
