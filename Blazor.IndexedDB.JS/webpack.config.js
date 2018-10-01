@@ -1,7 +1,7 @@
 ﻿const path = require('path');
 const webpack = require('webpack');
 
-module.exports = {
+module.exports = (env, args) =>({
     resolve: {
         extensions: ['.ts', '.js']
     },
@@ -21,4 +21,4 @@ module.exports = {
         path: path.join(__dirname, '/dist'),
         filename: '[name].js'
     }
-};
+});
