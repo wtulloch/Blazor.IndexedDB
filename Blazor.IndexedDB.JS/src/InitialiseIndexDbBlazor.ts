@@ -1,5 +1,4 @@
 ﻿import { IndexedDbManager } from './indexedDbBlazor';
-import 'idb';
 
 namespace IndexDb {
     const timeghostExtensions: string = 'TimeGhost';

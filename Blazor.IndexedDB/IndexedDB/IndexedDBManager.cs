@@ -25,16 +25,23 @@ namespace TG.Blazor.IndexedDB
 
         public async Task<string> OpenDb()
         {
-            var result = await CallJavascript<DbStore,string>(DbFunctions.OpenDb, _dbStore);
+            var result = await CallJavascript<DbStore, string>(DbFunctions.OpenDb, _dbStore);
             _isOpen = true;
             return result;
         }
 
         public async Task<string> AddRecord<T>(StoreRecord<T> recordToAdd)
         {
-            if (!_isOpen) 
-            await OpenDb();
-            return await CallJavascript<StoreRecord<T>, string>(DbFunctions.AddRecord, recordToAdd);
+            if (!_isOpen)
+                await OpenDb();
+            try
+            {
+                return await CallJavascript<StoreRecord<T>, string>(DbFunctions.AddRecord, recordToAdd);
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
         }
 
         public async Task<string> UpdateRecord<T>(StoreRecord<T> recordToUpdate)
@@ -44,7 +51,7 @@ namespace TG.Blazor.IndexedDB
             return await CallJavascript<StoreRecord<T>, string>(DbFunctions.UpdateRecord, recordToUpdate);
         }
 
-      
+
 
         public async Task<List<T>> GetRecords<T>(string storeName)
         {
@@ -59,19 +66,37 @@ namespace TG.Blazor.IndexedDB
         public async Task<TResult> GetRecordById<TInput, TResult>(string storeName, TInput id)
         {
             var data = new { Storename = storeName, Data = id };
-            var record = await CallJavascript<object, string>(DbFunctions.GetRecordById,data );
-            Console.WriteLine(Json.Serialize(record));
-            return Json.Deserialize<TResult>(record);
+            try
+            {
+                var record = await CallJavascript<object, string>(DbFunctions.GetRecordById, data);
+
+                return Json.Deserialize<TResult>(record);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return default;
+            }
+
         }
 
         public async Task<string> DeleteRecord<TInput>(string storeName, TInput id)
         {
             var data = new StoreRecord<TInput> { Storename = storeName, Data = id };
-            var result = await CallJavascript<StoreRecord<TInput>, string>(DbFunctions.DeleteRecord, data);
-            return result;
+            try
+            {
+                var result = await CallJavascript<StoreRecord<TInput>, string>(DbFunctions.DeleteRecord, data);
+                return result;
+            }
+            catch (Exception e)
+            {
+
+                return e.Message;
+            }
+
         }
 
-        private async Task<TResult> CallJavascript<TData,TResult>(string functionName,TData data)
+        private async Task<TResult> CallJavascript<TData, TResult>(string functionName, TData data)
         {
             return await JSRuntime.Current.InvokeAsync<TResult>($"{InteropPrefix}.{functionName}", data);
         }

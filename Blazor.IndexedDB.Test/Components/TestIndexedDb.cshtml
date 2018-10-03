@@ -82,12 +82,12 @@
     {
         try
         {
-            CurrentPerson = await DbManager.GetRecordById<long,Person>(DbManager.Stores[0].Name, id);
+            CurrentPerson = await DbManager.GetRecordById<long,Person>(DbManager.Stores[0].Name,id);
         }
-        catch (Exception)
+        catch (Exception e)
         {
 
-            throw;
+            Console.WriteLine(e.Message);
         }
     }
 
@@ -115,8 +115,6 @@
         CurrentPerson = new Person();
 
         GetRecords();
-
-        StateHasChanged();
     }
 
     protected async Task DeleteRecord(long? id)

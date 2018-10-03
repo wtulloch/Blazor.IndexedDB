@@ -12,19 +12,25 @@ namespace Blazor.IndexedDB.Test
             services.AddIndexedDB(dbStore =>
             {
                 dbStore.DbName = "TheFactory";
-                dbStore.Version = 1;
-               
-                dbStore.Stores.Add(new StoreSchema
-                {
-                    Name = "Employees",
-                    PrimaryKey = new IndexSpec { Name="id",KeyPath="id", Auto = true },
-                    Indexes = new List<IndexSpec>
+                dbStore.Version = 2;
+
+            dbStore.Stores.Add(new StoreSchema
+            {
+                Name = "Employees",
+                PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = true },
+                Indexes = new List<IndexSpec>
                     {
                         new IndexSpec{Name="firstName", KeyPath = "firstName", Auto=false},
                         new IndexSpec{Name="lastName", KeyPath = "lastName", Auto=false}
 
                     }
-                });
+            });
+                dbStore.Stores.Add(new StoreSchema
+                {
+                    Name = "Outbox",
+                    PrimaryKey = new IndexSpec { Auto = true }
+                }
+                    );
             });
         }
 

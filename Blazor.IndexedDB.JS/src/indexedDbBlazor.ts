@@ -1,6 +1,6 @@
-﻿/// <reference path="Microsoft.JSInterop.d.ts"/>
-import idb, { Transaction } from 'idb';
-import { DB, UpgradeDB, ObjectStore } from 'idb';
+﻿///// <reference path="Microsoft.JSInterop.d.ts"/>
+import idb from 'idb';
+import { DB, UpgradeDB, ObjectStore, Transaction } from 'idb';
 
 
 interface IStoreRecord {
@@ -50,18 +50,17 @@ export class IndexedDbManager {
         const stName = record.storename;
         let itemToSave = record.data;
         const dbInstance = await this.dbPromise;
-        const tx = dbInstance.transaction(stName, 'readwrite');
+        const tx = this.getTransaction(dbInstance, stName,'readwrite');
         const objectStore = tx.objectStore(stName);
-        //currently assume that primary key is not an aggregate key. 
+        
          itemToSave = this.checkForKeyPath(objectStore, itemToSave);
-
-        let returnValue: string;
+       
+        let returnValue: string="";
         try {
             const result = await objectStore.add(itemToSave);
             returnValue = `Added new record with id ${result}`;
         } catch (err) {
-            console.log("Error adding recording:", err.message)
-            returnValue = 'Failed to add new record';
+             returnValue = (err as Error).message;
         }
 
         return returnValue;
@@ -70,30 +69,31 @@ export class IndexedDbManager {
         const stName = record.storename;
         const itemToSave = record.data;
         const dbInstance = await this.dbPromise;
-        const tx = dbInstance.transaction(stName, 'readwrite');
+        const tx = this.getTransaction(dbInstance, stName, 'readwrite');
         let returnValue: string;
 
         try {
             const result = await tx.objectStore(stName).put(itemToSave);
             returnValue = `updated record with id ${result}`;
         } catch (err) {
-            console.log("Error adding recording:", err.message)
-            returnValue = 'Failed to update record';
+            
+            returnValue = (err as Error).message;
         }
-
+        
         return returnValue;
     }
 
     public getRecords = async (storeName: string): Promise<string> => {
         const dbInstance = await this.dbPromise;
         let returnValue: string;
+        const tx = this.getTransaction(dbInstance, storeName, 'readonly');
 
         try {
-            let results = await dbInstance.transaction(storeName).objectStore(storeName).getAll();
+            let results = await tx.objectStore(storeName).getAll();
             returnValue = JSON.stringify(results);
         } catch (err) {
-            console.error("Issue getting all records", err);
-            returnValue = "failed to get records";
+           
+            returnValue = (err as Error).message;
         }
 
         return returnValue;
@@ -103,15 +103,16 @@ export class IndexedDbManager {
         const storeName = data.storename;
         const id = data.data;
         const dbInstance = await this.dbPromise;
+        const tx = this.getTransaction(dbInstance, storeName, 'readonly');
         let returnValue: string;
 
         try {
-            let result = await dbInstance.transaction(storeName, 'readonly')
-                .objectStore(storeName).get(id);
+            let result = await tx.objectStore(storeName).get(id);
             returnValue = JSON.stringify(result);
+
         } catch (err) {
-            console.error(`failed to get record: ${id}`, err);
-            returnValue = `failed to get record: ${id}`;
+            
+            returnValue = (err as Error).message;
         }
 
         return returnValue;
@@ -121,19 +122,30 @@ export class IndexedDbManager {
         const storeName = data.storename;
         const id = data.data;
         const dbInstance = await this.dbPromise;
-        const tx = dbInstance.transaction(storeName, 'readwrite');
+        const tx = this.getTransaction(dbInstance, storeName, 'readwrite');
 
         try {
             await tx.objectStore(storeName).delete(id); 
-            await tx.complete;
             return 'Record deleted';
         } catch (err) {
-            console.error('failed to delete record', err);
-            return 'Failed to delete record';
+           
+            return (err as Error).message;
         }
     }
 
  
+    private getTransaction(dbInstance: DB, stName: string, mode?: 'readonly' | 'readwrite') {
+        const tx = dbInstance.transaction(stName, mode);
+
+        tx.complete.catch(
+            err => {
+                console.log(err);
+            });
+
+        return tx;
+    }
+
+
     private checkForKeyPath(objectStore: ObjectStore<any, any>, data: any) {
         if (!objectStore.autoIncrement || !objectStore.keyPath) {
             return data;
