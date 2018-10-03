@@ -24,15 +24,15 @@
         </div>
     </div>
 
-    <div class="d-flex flex-row flex-wrap">
+    <div class="d-flex flex-row flex-wrap mt-4">
 
         @foreach (var person in People)
         {
 
-            <div class="card" style="margin:5px; padding:5px; width:200px">
-                @* <p>Id: @person.Id</p>*@
-                <p>FirstName: @person.FirstName</p>
-                <p>LastName: @person.LastName</p>
+            <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:200px">
+                 <p>Id: @person.Id</p>
+                <p>First Name: @person.FirstName</p>
+                <p>Last Name: @person.LastName</p>
                 <div>
                     <button class="btn btn-outline-primary" onclick="@(() => EditPerson(person.Id.Value))">Edit</button>
                     <button class="btn btn-outline-warning" onclick="@(() => DeleteRecord(person.Id.Value))">Delete</button>
@@ -42,8 +42,6 @@
         }
 
     </div>
-
-
 </div>
 
 @functions
