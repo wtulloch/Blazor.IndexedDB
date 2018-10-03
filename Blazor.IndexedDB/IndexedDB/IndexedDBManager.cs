@@ -93,7 +93,16 @@ namespace TG.Blazor.IndexedDB
 
                 return e.Message;
             }
+        }
 
+        public async Task<string> ClearStore(string storeName)
+        {
+            if (string.IsNullOrEmpty(storeName))
+            {
+                throw new ArgumentException("Parameter cannot be null or empyt", nameof(storeName));
+            }
+
+            return await CallJavascript<string, string>(DbFunctions.ClearStore, storeName);
         }
 
         private async Task<TResult> CallJavascript<TData, TResult>(string functionName, TData data)
@@ -124,6 +133,7 @@ namespace TG.Blazor.IndexedDB
         public const string OpenDb = "openDb";
         public const string DeleteRecord = "deleteRecord";
         public const string GetRecordById = "getRecordById";
+        public const string ClearStore = "clearStore";
     }
 }
 

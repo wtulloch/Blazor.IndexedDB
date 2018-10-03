@@ -99,6 +99,17 @@ export class IndexedDbManager {
         return returnValue;
     }
 
+    public clearStore = async (storeName: string): Promise<string> => {
+        const dbInstance = await this.dbPromise;
+        const tx = this.getTransaction(dbInstance, storeName, 'readwrite');
+        try {
+            await tx.objectStore(storeName).clear();
+            return `Store ${storeName} cleared`;
+        } catch (err) {
+            return (err as Error).message;
+        }
+    }
+
     public getRecordById = async (data: IStoreRecord): Promise<string> => {
         const storeName = data.storename;
         const id = data.data;

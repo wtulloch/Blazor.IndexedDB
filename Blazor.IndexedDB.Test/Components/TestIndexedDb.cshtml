@@ -10,6 +10,7 @@
     <div class="d-flex flex-column">
         <button class="btn btn-outline-primary m-4" onclick="@OpenDatabase">Open Database</button>
         <button class="btn btn-outline-primary m-4" onclick="@GetRecords">Get Records</button>
+        <button class="btn btn-outline-primary m-4" onclick="@ClearStore"> Clear Store</button>
     </div>
 
     <div class="d-flex, flex-column">
@@ -20,7 +21,7 @@
             <div class="m-4">
                 <label>Last Name</label> <input id="lastName" type="text" bind="@CurrentPerson.LastName" />
             </div>
-            <button class="btn btn-primary m-4" onclick="@TestAddRecord">Add/Update Record</button>
+            <button class="btn btn-primary m-4" onclick="@AddRecord">Add/Update Record</button>
         </div>
     </div>
 
@@ -89,7 +90,7 @@
         }
     }
 
-    protected async void TestAddRecord()
+    protected async void AddRecord()
     {
         var newRecord = new StoreRecord<Person>
         {
@@ -119,6 +120,12 @@
     {
         Message = await DbManager.DeleteRecord(DbManager.Stores[0].Name, id);
 
+        GetRecords();
+    }
+
+    protected async Task ClearStore()
+    {
+       Message = await DbManager.ClearStore(DbManager.Stores[0].Name);
         GetRecords();
     }
 
