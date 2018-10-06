@@ -16,9 +16,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="0.5.1" />
     <WebpackInputs Include="**\*.ts" Exclude="dist\**;node_modules\**; **\*.d.ts" />
   </ItemGroup>
-  <ItemGroup>
-    <WebpackInputs Remove="src\IDatabaseSetup.ts" />
-  </ItemGroup>
+ 
   
   
   <Target Name="EnsureNpmRestored" Condition="!Exists('node_modules')">

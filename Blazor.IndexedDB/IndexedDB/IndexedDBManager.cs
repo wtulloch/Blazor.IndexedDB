@@ -32,8 +32,7 @@ namespace TG.Blazor.IndexedDB
 
         public async Task<string> AddRecord<T>(StoreRecord<T> recordToAdd)
         {
-            if (!_isOpen)
-                await OpenDb();
+            await EnsureDbOpen();
             try
             {
                 return await CallJavascript<StoreRecord<T>, string>(DbFunctions.AddRecord, recordToAdd);
@@ -46,17 +45,14 @@ namespace TG.Blazor.IndexedDB
 
         public async Task<string> UpdateRecord<T>(StoreRecord<T> recordToUpdate)
         {
-            if (!_isOpen)
-                await OpenDb();
+            await EnsureDbOpen();
+
             return await CallJavascript<StoreRecord<T>, string>(DbFunctions.UpdateRecord, recordToUpdate);
         }
 
-
-
         public async Task<List<T>> GetRecords<T>(string storeName)
         {
-            if (!_isOpen)
-                await OpenDb();
+            await EnsureDbOpen();
 
             var results = await CallJavascript<string, string>(DbFunctions.GetRecords, storeName);
 
@@ -74,7 +70,7 @@ namespace TG.Blazor.IndexedDB
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                
                 return default;
             }
 
@@ -90,7 +86,6 @@ namespace TG.Blazor.IndexedDB
             }
             catch (Exception e)
             {
-
                 return e.Message;
             }
         }
@@ -99,17 +94,38 @@ namespace TG.Blazor.IndexedDB
         {
             if (string.IsNullOrEmpty(storeName))
             {
-                throw new ArgumentException("Parameter cannot be null or empyt", nameof(storeName));
+                throw new ArgumentException("Parameter cannot be null or empty", nameof(storeName));
             }
 
             return await CallJavascript<string, string>(DbFunctions.ClearStore, storeName);
+        }
+        public async Task<TResult> GetRecordByIndex<TInput, TResult>(StoreIndexQuery<TInput> searchQuery)
+        {
+            try
+            {
+                var result = await CallJavascript<StoreIndexQuery<TInput>, TResult>(DbFunctions.GetRecordByIndex, searchQuery);
+                return result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"tg: {e.Message}");
+                return default;
+            }
+
         }
 
         private async Task<TResult> CallJavascript<TData, TResult>(string functionName, TData data)
         {
             return await JSRuntime.Current.InvokeAsync<TResult>($"{InteropPrefix}.{functionName}", data);
         }
+
+        private async Task EnsureDbOpen()
+        {
+            if (!_isOpen) await OpenDb();
+        }
     }
+
+
 
     /// <summary>
     /// 
@@ -119,6 +135,14 @@ namespace TG.Blazor.IndexedDB
     {
         public string Storename { get; set; }
         public T Data { get; set; }
+    }
+
+    public class StoreIndexQuery<TInput>
+    {
+        public string Storename { get; set; }
+        public string IndexName { get; set; }
+        public bool AllMatching { get; set; }
+        public TInput QueryValue { get; set; }
     }
 
     /// <summary>
@@ -134,6 +158,7 @@ namespace TG.Blazor.IndexedDB
         public const string DeleteRecord = "deleteRecord";
         public const string GetRecordById = "getRecordById";
         public const string ClearStore = "clearStore";
+        public const string GetRecordByIndex = "getRecordByIndex";
     }
 }
 

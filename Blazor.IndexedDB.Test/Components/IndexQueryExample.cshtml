@@ -1,0 +1,61 @@
+﻿@using Blazor.IndexedDB.Test.Models
+@using TG.Blazor.IndexedDB
+@inject IndexedDBManager DbManager
+<div>
+        <div class="form-group">
+            <label for="selectIndex">Select Index</label>
+            <select class="form-control" id="selectIndex" bind="@SelectedIndex">
+                <option value="default" selected></option>
+                @foreach (var index in Indexes)
+                {
+                    <option value="@index">@index</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="searchValue">Search for</label>
+            <input id="searchValue" class="form-control" type="text" bind="@SearchString" />
+        </div>
+        <div class="form-group">
+
+            <input id="selectAll" type="checkbox" class="form-check-input" bind="@GetAll" />
+            <label for="selectAll">Return all matches</label>
+        </div>
+        <button class="btn btn-outline-primary" onclick="@SearchForRecords">Search</button>
+</div>
+
+@functions{
+
+    protected List<string> Indexes { get; set; }
+
+    protected string SelectedIndex { get; set; }
+
+    protected string SearchString { get; set; }
+
+    protected bool GetAll { get; set; }
+
+
+    protected override void OnInit()
+    {
+        Indexes = DbManager.Stores[0].Indexes.Select(id => id.Name).ToList();
+
+    }
+
+    protected async Task SearchForRecords()
+    {
+        if (string.IsNullOrEmpty(SelectedIndex))
+        {
+            return;
+        }
+
+        var result = await DbManager.GetRecordByIndex<string, Person>(new StoreIndexQuery<string>
+        {
+            Storename = DbManager.Stores[0].Name,
+            IndexName = SelectedIndex,
+            QueryValue = SearchString
+        });
+
+        Console.WriteLine(Json.Serialize(result));
+
+    }
+}

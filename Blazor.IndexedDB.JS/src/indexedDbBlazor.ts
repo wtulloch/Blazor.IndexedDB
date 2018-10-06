@@ -8,6 +8,13 @@ interface IStoreRecord {
     data: any;
 }
 
+interface IIndexSearch {
+    storename: string;
+    indexName: string;
+    queryValue: any;
+    allMatching: boolean;
+}
+
 interface IIndexSpec {
     name: string;
     keyPath: string;
@@ -30,7 +37,7 @@ interface IDbStore {
 }
 
 export class IndexedDbManager {
-    private isOpen = false;
+   
     private dbPromise: Promise<DB> = new Promise<DB>((resolve, reject) => { });
 
     constructor() {}
@@ -110,6 +117,13 @@ export class IndexedDbManager {
         }
     }
 
+    public getRecordByIndex = async (searchData: IIndexSearch): Promise<any> => {
+        const dbInstance = await this.dbPromise;
+        const tx = this.getTransaction(dbInstance, searchData.storename, 'readonly');
+        const results = await tx.objectStore(searchData.storename).index(searchData.indexName).get(searchData.queryValue);
+        return results;
+    }
+
     public getRecordById = async (data: IStoreRecord): Promise<string> => {
         const storeName = data.storename;
         const id = data.data;
@@ -147,10 +161,9 @@ export class IndexedDbManager {
  
     private getTransaction(dbInstance: DB, stName: string, mode?: 'readonly' | 'readwrite') {
         const tx = dbInstance.transaction(stName, mode);
-
         tx.complete.catch(
             err => {
-                console.log(err);
+                console.log((err as Error).message);
             });
 
         return tx;
