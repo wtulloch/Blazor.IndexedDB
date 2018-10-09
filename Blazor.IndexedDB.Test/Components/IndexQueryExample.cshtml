@@ -1,7 +1,9 @@
 ﻿@using Blazor.IndexedDB.Test.Models
 @using TG.Blazor.IndexedDB
 @inject IndexedDBManager DbManager
-<div>
+
+<div class="d-flex flex-row align-items-start">
+    <div class="d-flex flex-column">
         <div class="form-group">
             <label for="selectIndex">Select Index</label>
             <select class="form-control" id="selectIndex" bind="@SelectedIndex">
@@ -22,6 +24,22 @@
             <label for="selectAll">Return all matches</label>
         </div>
         <button class="btn btn-outline-primary" onclick="@SearchForRecords">Search</button>
+    </div>
+     <div class="d-flex flex-row flex-wrap mt-4 ml-4">
+
+        @foreach (var person in People)
+        {
+
+            <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:200px">
+                 <p>Id: @person.Id</p>
+                <p>First Name: @person.FirstName</p>
+                <p>Last Name: @person.LastName</p>
+                
+            </div>
+
+        }
+
+    </div>
 </div>
 
 @functions{
@@ -34,6 +52,8 @@
 
     protected bool GetAll { get; set; }
 
+    protected List<Person> People { get; set; } = new List<Person>();
+
 
     protected override void OnInit()
     {
@@ -43,10 +63,13 @@
 
     protected async Task SearchForRecords()
     {
+
         if (string.IsNullOrEmpty(SelectedIndex))
         {
             return;
         }
+
+        People.Clear();
 
         var result = await DbManager.GetRecordByIndex<string, Person>(new StoreIndexQuery<string>
         {
@@ -55,7 +78,12 @@
             QueryValue = SearchString
         });
 
-        Console.WriteLine(Json.Serialize(result));
+        if (result is null)
+        {
+            return;
+        }
+        People.Add(result);
+
 
     }
 }

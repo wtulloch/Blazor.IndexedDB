@@ -120,7 +120,10 @@ export class IndexedDbManager {
     public getRecordByIndex = async (searchData: IIndexSearch): Promise<any> => {
         const dbInstance = await this.dbPromise;
         const tx = this.getTransaction(dbInstance, searchData.storename, 'readonly');
-        const results = await tx.objectStore(searchData.storename).index(searchData.indexName).get(searchData.queryValue);
+        const results = await tx.objectStore(searchData.storename)
+            .index(searchData.indexName)
+            .get(searchData.queryValue);
+
         return results;
     }
 
@@ -157,7 +160,6 @@ export class IndexedDbManager {
             return (err as Error).message;
         }
     }
-
  
     private getTransaction(dbInstance: DB, stName: string, mode?: 'readonly' | 'readwrite') {
         const tx = dbInstance.transaction(stName, mode);

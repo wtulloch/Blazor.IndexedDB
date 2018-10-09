@@ -13,6 +13,7 @@ namespace TG.Blazor.IndexedDB
         private readonly DbStore _dbStore;
         private const string InteropPrefix = "TimeGhost.IndexedDbManager";
         private bool _isOpen;
+
         public IndexedDBManager()
         {
         }
@@ -61,6 +62,8 @@ namespace TG.Blazor.IndexedDB
 
         public async Task<TResult> GetRecordById<TInput, TResult>(string storeName, TInput id)
         {
+            await EnsureDbOpen();
+
             var data = new { Storename = storeName, Data = id };
             try
             {
@@ -101,6 +104,8 @@ namespace TG.Blazor.IndexedDB
         }
         public async Task<TResult> GetRecordByIndex<TInput, TResult>(StoreIndexQuery<TInput> searchQuery)
         {
+            await EnsureDbOpen();
+
             try
             {
                 var result = await CallJavascript<StoreIndexQuery<TInput>, TResult>(DbFunctions.GetRecordByIndex, searchQuery);
@@ -111,7 +116,6 @@ namespace TG.Blazor.IndexedDB
                 Console.WriteLine($"tg: {e.Message}");
                 return default;
             }
-
         }
 
         private async Task<TResult> CallJavascript<TData, TResult>(string functionName, TData data)
