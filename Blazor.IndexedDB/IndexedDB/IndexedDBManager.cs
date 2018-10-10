@@ -6,14 +6,16 @@ using Microsoft.JSInterop;
 namespace TG.Blazor.IndexedDB
 {
     /// <summary>
-    /// 
+    /// Provides 
     /// </summary>
     public class IndexedDBManager
     {
+
         private readonly DbStore _dbStore;
         private const string InteropPrefix = "TimeGhost.IndexedDbManager";
         private bool _isOpen;
 
+        public event EventHandler<IndexedDBNotificationArgs> ActionCompleted;
         public IndexedDBManager()
         {
         }
@@ -24,12 +26,15 @@ namespace TG.Blazor.IndexedDB
 
         public List<StoreSchema> Stores => _dbStore.Stores;
 
-        public async Task<string> OpenDb()
+        public async Task OpenDb()
         {
             var result = await CallJavascript<DbStore, string>(DbFunctions.OpenDb, _dbStore);
             _isOpen = true;
-            return result;
+
+            RaiseNotification(result);
         }
+
+        
 
         public async Task<string> AddRecord<T>(StoreRecord<T> recordToAdd)
         {
@@ -38,7 +43,7 @@ namespace TG.Blazor.IndexedDB
             {
                 return await CallJavascript<StoreRecord<T>, string>(DbFunctions.AddRecord, recordToAdd);
             }
-            catch (Exception e)
+            catch (JSException e)
             {
                 return e.Message;
             }
@@ -71,9 +76,9 @@ namespace TG.Blazor.IndexedDB
 
                 return Json.Deserialize<TResult>(record);
             }
-            catch (Exception e)
+            catch (JSException jse)
             {
-                
+
                 return default;
             }
 
@@ -127,42 +132,11 @@ namespace TG.Blazor.IndexedDB
         {
             if (!_isOpen) await OpenDb();
         }
-    }
 
-
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class StoreRecord<T>
-    {
-        public string Storename { get; set; }
-        public T Data { get; set; }
-    }
-
-    public class StoreIndexQuery<TInput>
-    {
-        public string Storename { get; set; }
-        public string IndexName { get; set; }
-        public bool AllMatching { get; set; }
-        public TInput QueryValue { get; set; }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public struct DbFunctions
-    {
-        public const string CreateDb = "createDb";
-        public const string AddRecord = "addRecord";
-        public const string UpdateRecord = "updateRecord";
-        public const string GetRecords = "getRecords";
-        public const string OpenDb = "openDb";
-        public const string DeleteRecord = "deleteRecord";
-        public const string GetRecordById = "getRecordById";
-        public const string ClearStore = "clearStore";
-        public const string GetRecordByIndex = "getRecordByIndex";
+        //currently just a test to see how events work in Blazor may remove.
+        private void RaiseNotification(string outcome, string result)
+        {
+            ActionCompleted?.Invoke(this, new IndexedDBNotificationArgs { Outcome = true, Message = result });
+        }
     }
 }
-
