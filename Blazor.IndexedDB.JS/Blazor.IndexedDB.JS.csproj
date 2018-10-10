@@ -16,6 +16,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="0.5.1" />
     <WebpackInputs Include="**\*.ts" Exclude="dist\**;node_modules\**; **\*.d.ts" />
   </ItemGroup>
+  <ItemGroup>
+    <WebpackInputs Remove="src\InteropInterfaces.ts" />
+  </ItemGroup>
  
   
   

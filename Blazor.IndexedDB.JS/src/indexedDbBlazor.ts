@@ -1,40 +1,9 @@
 ﻿///// <reference path="Microsoft.JSInterop.d.ts"/>
 import idb from 'idb';
 import { DB, UpgradeDB, ObjectStore, Transaction } from 'idb';
+import {IDbStore, IIndexSearch, IIndexSpec,IStoreRecord, IStoreSchema  } from './interopInterfaces'; 
 
 
-interface IStoreRecord {
-    storename: string;
-    data: any;
-}
-
-interface IIndexSearch {
-    storename: string;
-    indexName: string;
-    queryValue: any;
-    allMatching: boolean;
-}
-
-interface IIndexSpec {
-    name: string;
-    keyPath: string;
-    unique?: boolean;
-    auto: boolean;
-}
-
-interface IStoreSchema {
-    dbVersion?: number;
-    name: string;
-    primaryKey: IIndexSpec;
-    indexes: IIndexSpec[];
-}
-
-interface IDbStore {
-    dbName: string;
-    version: number;
-    stores: IStoreSchema[];
-
-}
 
 export class IndexedDbManager {
    
@@ -64,7 +33,7 @@ export class IndexedDbManager {
        
         let returnValue: string="";
         try {
-            const result = await objectStore.add(itemToSave);
+            const result = await objectStore.add(itemToSave, record.key);
             returnValue = `Added new record with id ${result}`;
         } catch (err) {
              returnValue = (err as Error).message;
@@ -80,7 +49,7 @@ export class IndexedDbManager {
         let returnValue: string;
 
         try {
-            const result = await tx.objectStore(stName).put(itemToSave);
+            const result = await tx.objectStore(stName).put(itemToSave,record.key);
             returnValue = `updated record with id ${result}`;
         } catch (err) {
             
@@ -120,6 +89,10 @@ export class IndexedDbManager {
     public getRecordByIndex = async (searchData: IIndexSearch): Promise<any> => {
         const dbInstance = await this.dbPromise;
         const tx = this.getTransaction(dbInstance, searchData.storename, 'readonly');
+        if (searchData.allMatching) {
+
+        }
+
         const results = await tx.objectStore(searchData.storename)
             .index(searchData.indexName)
             .get(searchData.queryValue);
