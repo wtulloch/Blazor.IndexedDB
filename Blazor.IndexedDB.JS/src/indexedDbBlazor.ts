@@ -11,8 +11,8 @@ export class IndexedDbManager {
 
     constructor() {}
 
-    public openDb = (data): Promise<string> => {
-        var dbStore = data as IDbStore;
+    public openDb = (data:IDbStore): Promise<string> => {
+        var dbStore = data ;
         return new Promise<string>((resolve, reject) => {
             this.dbPromise = idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
                 this.upgradeDatabase(upgradeDB, dbStore);
@@ -100,15 +100,14 @@ export class IndexedDbManager {
         return results;
     }
 
-    public getRecordById = async (data: IStoreRecord): Promise<string> => {
-        const storeName = data.storename;
-        const id = data.data;
+    public getRecordById = async (storename: string, id:any): Promise<string> => {
+        
         const dbInstance = await this.dbPromise;
-        const tx = this.getTransaction(dbInstance, storeName, 'readonly');
+        const tx = this.getTransaction(dbInstance, storename, 'readonly');
         let returnValue: string;
 
         try {
-            let result = await tx.objectStore(storeName).get(id);
+            let result = await tx.objectStore(storename).get(id);
             returnValue = JSON.stringify(result);
 
         } catch (err) {
@@ -119,14 +118,12 @@ export class IndexedDbManager {
         return returnValue;
     }
 
-    public deleteRecord = async (data: IStoreRecord): Promise<string> => {
-        const storeName = data.storename;
-        const id = data.data;
+    public deleteRecord = async (storename: string, id: any): Promise<string> => {
         const dbInstance = await this.dbPromise;
-        const tx = this.getTransaction(dbInstance, storeName, 'readwrite');
+        const tx = this.getTransaction(dbInstance, storename, 'readwrite');
 
         try {
-            await tx.objectStore(storeName).delete(id); 
+            await tx.objectStore(storename).delete(id); 
             return 'Record deleted';
         } catch (err) {
            
@@ -144,7 +141,7 @@ export class IndexedDbManager {
         return tx;
     }
 
-
+    // Currently don't support aggregate keys
     private checkForKeyPath(objectStore: ObjectStore<any, any>, data: any) {
         if (!objectStore.autoIncrement || !objectStore.keyPath) {
             return data;
@@ -165,17 +162,18 @@ export class IndexedDbManager {
     private upgradeDatabase(upgradeDB: UpgradeDB, dbStore: IDbStore) {
         if (upgradeDB.oldVersion < dbStore.version) {
             if (dbStore.stores) {
-                for (let i = 0; i < dbStore.stores.length; i++) {
-                    const storeSchema = dbStore.stores[i];
-                    if (!upgradeDB.objectStoreNames.contains(storeSchema.name)) {
-                        let primaryKey = storeSchema.primaryKey;
+                for (var store of dbStore.stores) {
+                    if (!upgradeDB.objectStoreNames.contains(store.name)) {
+                        let primaryKey = store.primaryKey;
+
                         if (!primaryKey) {
                             primaryKey = { name: 'id', keyPath: 'id', auto: true };
                         }
-                        const store = upgradeDB.createObjectStore(storeSchema.name, { keyPath: primaryKey.name, autoIncrement: primaryKey.auto });
-                        for (let j = 0; j < storeSchema.indexes.length; j++) {
-                            const index = storeSchema.indexes[j];
-                            store.createIndex(index.name, index.keyPath, { unique: index.unique });
+
+                        const newStore = upgradeDB.createObjectStore(store.name, { keyPath: primaryKey.name, autoIncrement: primaryKey.auto });
+
+                        for (var index of store.indexes) {
+                            newStore.createIndex(index.name, index.keyPath, { unique: index.unique });
                         }
                     }
                 }
