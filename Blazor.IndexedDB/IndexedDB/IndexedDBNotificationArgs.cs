@@ -4,7 +4,14 @@ namespace TG.Blazor.IndexedDB
 {
     public class IndexedDBNotificationArgs : EventArgs
     {
-        public string Outcome { get; set; }
+        public IndexDBActionOutCome Outcome { get; set; }
         public string Message { get; set; }
+    }
+
+    public enum IndexDBActionOutCome
+    {
+        Successful = 0,
+        Failed = 1,
+        Deleted = 2
     }
 }

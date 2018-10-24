@@ -14,5 +14,6 @@
         public const string GetRecordById = "getRecordById";
         public const string ClearStore = "clearStore";
         public const string GetRecordByIndex = "getRecordByIndex";
+        public const string GetAllRecordsByIndex = "getAllRecordsByIndex";
     }
 }

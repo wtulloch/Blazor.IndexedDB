@@ -1,7 +1,7 @@
 ﻿///// <reference path="Microsoft.JSInterop.d.ts"/>
 import idb from 'idb';
 import { DB, UpgradeDB, ObjectStore, Transaction } from 'idb';
-import {IDbStore, IIndexSearch, IIndexSpec,IStoreRecord, IStoreSchema  } from './interopInterfaces'; 
+import {IDbStore, IIndexSearch, IIndexSpec,IStoreRecord, IStoreSchema, IDotNetInstanceWrapper  } from './interopInterfaces'; 
 
 
 
@@ -11,14 +11,16 @@ export class IndexedDbManager {
 
     constructor() {}
 
-    public openDb = (data:IDbStore): Promise<string> => {
-        var dbStore = data ;
+    public openDb = (data:IDbStore, instanceWrapper: IDotNetInstanceWrapper): Promise<string> => {
+        const dbStore = data;
+        const test = instanceWrapper;
+        instanceWrapper.instance.invokeMethod(instanceWrapper.methodName, "Hello from the other side");
         return new Promise<string>((resolve, reject) => {
             this.dbPromise = idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
                 this.upgradeDatabase(upgradeDB, dbStore);
             });
-
-            resolve('database created');
+            
+            resolve(`database ${data.dbName} open`);
         });
     }
 
@@ -41,6 +43,7 @@ export class IndexedDbManager {
 
         return returnValue;
     }
+
     public updateRecord = async (record: IStoreRecord): Promise<string> => {
         const stName = record.storename;
         const itemToSave = record.data;
@@ -66,6 +69,7 @@ export class IndexedDbManager {
 
         try {
             let results = await tx.objectStore(storeName).getAll();
+            console.log(results);
             returnValue = JSON.stringify(results);
         } catch (err) {
            
@@ -89,6 +93,7 @@ export class IndexedDbManager {
     public getRecordByIndex = async (searchData: IIndexSearch): Promise<any> => {
         const dbInstance = await this.dbPromise;
         const tx = this.getTransaction(dbInstance, searchData.storename, 'readonly');
+
         if (searchData.allMatching) {
 
         }
@@ -97,6 +102,31 @@ export class IndexedDbManager {
             .index(searchData.indexName)
             .get(searchData.queryValue);
 
+        return results;
+    }
+
+    public getAllRecordsByIndex = async (searchData: IIndexSearch): Promise<any> => {
+        const dbInstance = await this.dbPromise;
+        const tx = this.getTransaction(dbInstance, searchData.storename, 'readonly');
+        let results:any[] = [];
+     
+        let index = 0;
+       tx.objectStore(searchData.storename)
+            .index(searchData.indexName)
+            .iterateCursor(cursor => {
+                if (!cursor) {
+                    return;
+                }
+                if (cursor.key === searchData.queryValue) {
+                    results.push(cursor.value);
+                    index++;
+                }
+               
+                cursor.continue();
+            });
+
+        await tx.complete;
+       
         return results;
     }
 

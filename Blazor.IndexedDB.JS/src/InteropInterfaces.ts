@@ -39,5 +39,10 @@ export interface IIndexSpec {
     auto: boolean;
 }
 
+export interface IDotNetInstanceWrapper {
+    instance: any;
+    methodName: string;
+}
+
 
 

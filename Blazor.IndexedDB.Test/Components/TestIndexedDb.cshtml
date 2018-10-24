@@ -54,11 +54,17 @@
 
     List<Person> People { get; set; } = new List<Person>();
 
+    protected override void OnInit()
+    {
+        DbManager.ActionCompleted += OnIndexedDbNotification;
 
+    }
+
+    
 
     protected async void OpenDatabase()
     {
-        Message = await DbManager.OpenDb();
+        await DbManager.OpenDb();
         StateHasChanged();
     }
 
@@ -104,18 +110,17 @@
             Data = CurrentPerson
         };
 
-        string result;
 
         if (newRecord.Data.Id.HasValue)
         {
-            result = await DbManager.UpdateRecord(newRecord);
+            newRecord.Data.Id = 1000;
+             await DbManager.UpdateRecord(newRecord);
         }
         else
         {
-            result = await DbManager.AddRecord(newRecord);
+            await DbManager.AddRecord(newRecord);
         }
 
-        Message = result;
         CurrentPerson = new Person();
 
         GetRecords();
@@ -123,15 +128,20 @@
 
     protected async Task DeleteRecord(long? id)
     {
-        Message = await DbManager.DeleteRecord(DbManager.Stores[0].Name, id);
+        await DbManager.DeleteRecord(DbManager.Stores[0].Name, id);
 
         GetRecords();
     }
 
     protected async Task ClearStore()
     {
-        Message = await DbManager.ClearStore(DbManager.Stores[0].Name);
+        await DbManager.ClearStore(DbManager.Stores[0].Name);
         GetRecords();
+    }
+
+    private void OnIndexedDbNotification(object sender, IndexedDBNotificationArgs args)
+    {
+        Message = args.Message;
     }
 
 }

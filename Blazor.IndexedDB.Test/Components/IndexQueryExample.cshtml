@@ -59,6 +59,7 @@
     {
         Indexes = DbManager.Stores[0].Indexes.Select(id => id.Name).ToList();
 
+
     }
 
     protected async Task SearchForRecords()
@@ -71,19 +72,39 @@
 
         People.Clear();
 
-        var result = await DbManager.GetRecordByIndex<string, Person>(new StoreIndexQuery<string>
+        var indexSearch = new StoreIndexQuery<string>
         {
             Storename = DbManager.Stores[0].Name,
             IndexName = SelectedIndex,
-            QueryValue = SearchString
-        });
+            QueryValue = SearchString,
+        };
 
-        if (result is null)
+        if (GetAll)
         {
-            return;
+            var result = await DbManager.GetAllRecordsByIndex<string, Person>(indexSearch);
+
+            if (result is null)
+            {
+                return;
+            }
+            People.AddRange(result);
+
         }
-        People.Add(result);
+        else
+        {
+            var result = await DbManager.GetRecordByIndex<string, Person>(indexSearch);
+
+            if (result is null)
+            {
+                return;
+            }
+            People.Add(result);
+        }
+
+
 
 
     }
+
+
 }
