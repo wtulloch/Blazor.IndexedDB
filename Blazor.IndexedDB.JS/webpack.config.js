@@ -1,12 +1,11 @@
 ﻿const path = require('path');
 const webpack = require('webpack');
 
-module.exports = {
-    mode: 'production',
+module.exports = (env, args) =>({
     resolve: {
         extensions: ['.ts', '.js']
     },
-    devtool: 'inline-source-map',
+    devtool: args.mode === 'development' ? 'inline-source-map' : 'none',
     module: {
         rules: [
             {
@@ -22,4 +21,4 @@ module.exports = {
         path: path.join(__dirname, '/dist'),
         filename: '[name].js'
     }
-};
+});

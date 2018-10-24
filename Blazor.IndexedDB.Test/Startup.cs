@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Blazor.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using TG.Blazor.IndexedDB;
 
 namespace Blazor.IndexedDB.Test
 {
@@ -10,20 +11,26 @@ namespace Blazor.IndexedDB.Test
         {
             services.AddIndexedDB(dbStore =>
             {
-                dbStore.DbName = "CowboysAreGreat";
-                dbStore.Version = 1;
-               
-                dbStore.Stores.Add(new StoreSchema
-                {
-                    Name = "Boots",
-                    PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = false },
-                    Indexes = new List<IndexSpec>
+                dbStore.DbName = "TheFactory";
+                dbStore.Version = 2;
+
+            dbStore.Stores.Add(new StoreSchema
+            {
+                Name = "Employees",
+                PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = true },
+                Indexes = new List<IndexSpec>
                     {
                         new IndexSpec{Name="firstName", KeyPath = "firstName", Auto=false},
                         new IndexSpec{Name="lastName", KeyPath = "lastName", Auto=false}
 
                     }
-                });
+            });
+                dbStore.Stores.Add(new StoreSchema
+                {
+                    Name = "Outbox",
+                    PrimaryKey = new IndexSpec { Auto = true }
+                }
+                    );
             });
         }
 

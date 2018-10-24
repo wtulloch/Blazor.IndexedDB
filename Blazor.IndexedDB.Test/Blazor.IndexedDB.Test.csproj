@@ -17,4 +17,10 @@
     <ProjectReference Include="..\Blazor.IndexedDB\TG.Blazor.IndexedDB.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Components\TestIndexedDb.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+  </ItemGroup>
+
 </Project>

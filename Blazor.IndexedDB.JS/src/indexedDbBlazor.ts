@@ -1,150 +1,170 @@
-﻿/// <reference path="Microsoft.JSInterop.d.ts"/>
-import idb, { Transaction } from 'idb';
-import { DB, UpgradeDB } from 'idb';
+﻿///// <reference path="Microsoft.JSInterop.d.ts"/>
+import idb from 'idb';
+import { DB, UpgradeDB, ObjectStore, Transaction } from 'idb';
+import { IDbStore, IIndexSearch, IIndexSpec, IStoreRecord, IStoreSchema, IDotNetInstanceWrapper } from './interopInterfaces';
 
 
-interface IStoreRecord {
-    storename: string;
-    data: any;
-}
-
-interface IIndexSpec {
-    name: string;
-    keyPath: string;
-    unique?: boolean;
-    auto: boolean;
-}
-
-interface IStoreSchema {
-    dbVersion?: number;
-    name: string;
-    primaryKey: IIndexSpec;
-    indexes: IIndexSpec[];
-}
-
-interface IDbStore {
-    dbName: string;
-    version: number;
-    stores: IStoreSchema[];
-
-}
 
 export class IndexedDbManager {
-    private isOpen = false;
+
     private dbPromise: Promise<DB> = new Promise<DB>((resolve, reject) => { });
 
-    constructor() {}
+    constructor() { }
 
-    public openDb = (data): Promise<string> => {
-        var dbStore = data as IDbStore;
+    public openDb = (data: IDbStore, instanceWrapper: IDotNetInstanceWrapper): Promise<string> => {
+        const dbStore = data;
+        //just a test for the moment
+        instanceWrapper.instance.invokeMethod(instanceWrapper.methodName, "Hello from the other side");
+
         return new Promise<string>((resolve, reject) => {
             this.dbPromise = idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
                 this.upgradeDatabase(upgradeDB, dbStore);
             });
 
-            resolve('database created');
+            resolve(`database ${data.dbName} open`);
         });
     }
 
     public addRecord = async (record: IStoreRecord): Promise<string> => {
         const stName = record.storename;
-        const itemToSave = record.data;
+        let itemToSave = record.data;
         const dbInstance = await this.dbPromise;
-        const tx = dbInstance.transaction(stName, 'readwrite');
-        let returnValue: string;
+        const tx = this.getTransaction(dbInstance, stName, 'readwrite');
+        const objectStore = tx.objectStore(stName);
 
-        try {
-            const result = await tx.objectStore(stName).add(itemToSave);
-            returnValue = `Added new record with id ${result}`;
-        } catch (err) {
-            console.log("Error adding recording:", err.message)
-            returnValue = 'Failed to add new record';
-        }
+        itemToSave = this.checkForKeyPath(objectStore, itemToSave);
+
+        let returnValue = '';
+        const result = await objectStore.add(itemToSave, record.key);
+        returnValue = `Added new record with id ${result}`;
 
         return returnValue;
     }
+
     public updateRecord = async (record: IStoreRecord): Promise<string> => {
         const stName = record.storename;
-        const itemToSave = record.data;
         const dbInstance = await this.dbPromise;
-        const tx = dbInstance.transaction(stName, 'readwrite');
-        let returnValue: string;
+        const tx = this.getTransaction(dbInstance, stName, 'readwrite');
 
-        try {
-            const result = await tx.objectStore(stName).put(itemToSave);
-            returnValue = `updated record with id ${result}`;
-        } catch (err) {
-            console.log("Error adding recording:", err.message)
-            returnValue = 'Failed to update record';
-        }
+        const result = await tx.objectStore(stName).put(record.data, record.key);
 
-        return returnValue;
+        return `updated record with id ${result}`;
     }
 
-    public getRecords = async (storeName: string): Promise<string> => {
+    public getRecords = async (storeName: string): Promise<any> => {
         const dbInstance = await this.dbPromise;
-        let returnValue: string;
+        const tx = this.getTransaction(dbInstance, storeName, 'readonly');
 
-        try {
-            let results = await dbInstance.transaction(storeName).objectStore(storeName).getAll();
-            returnValue = JSON.stringify(results);
-        } catch (err) {
-            console.error("Issue getting all records", err);
-            returnValue = "failed to get records";
-        }
+        let results = await tx.objectStore(storeName).getAll();
 
-        return returnValue;
+        return results;
     }
 
-    public getRecordById = async (data: IStoreRecord): Promise<string> => {
-        const storeName = data.storename;
-        const id = data.data;
+    public clearStore = async (storeName: string): Promise<string> => {
         const dbInstance = await this.dbPromise;
-        let returnValue: string;
+        const tx = this.getTransaction(dbInstance, storeName, 'readwrite');
 
-        try {
-            let result = await dbInstance.transaction(storeName, 'readonly')
-                .objectStore(storeName).get(id);
-            returnValue = JSON.stringify(result);
-        } catch (err) {
-            console.error(`failed to get record: ${id}`, err);
-            returnValue = `failed to get record: ${id}`;
-        }
+        await tx.objectStore(storeName).clear();
 
-        return returnValue;
+        return `Store ${storeName} cleared`;
     }
 
-    public deleteRecord = async (data: IStoreRecord): Promise<string> => {
-        const storeName = data.storename;
-        const id = data.data;
+    public getRecordByIndex = async (searchData: IIndexSearch): Promise<any> => {
         const dbInstance = await this.dbPromise;
-        const tx = dbInstance.transaction(storeName, 'readwrite');
+        const tx = this.getTransaction(dbInstance, searchData.storename, 'readonly');
 
-        try {
-            await tx.objectStore(storeName).delete(id); 
-            await tx.complete;
-            return 'Record deleted';
-        } catch (err) {
-            console.error('failed to delete record', err);
-            return 'Failed to delete record';
-        }
+        const results = await tx.objectStore(searchData.storename)
+            .index(searchData.indexName)
+            .get(searchData.queryValue);
+
+        return results;
     }
 
- 
+    public getAllRecordsByIndex = async (searchData: IIndexSearch): Promise<any> => {
+        const dbInstance = await this.dbPromise;
+        const tx = this.getTransaction(dbInstance, searchData.storename, 'readonly');
+        let results: any[] = [];
+
+        tx.objectStore(searchData.storename)
+            .index(searchData.indexName)
+            .iterateCursor(cursor => {
+                if (!cursor) {
+                    return;
+                }
+
+                if (cursor.key === searchData.queryValue) {
+                    results.push(cursor.value);
+                }
+
+                cursor.continue();
+            });
+
+        await tx.complete;
+
+        return results;
+    }
+
+    public getRecordById = async (storename: string, id: any): Promise<any> => {
+
+        const dbInstance = await this.dbPromise;
+        const tx = this.getTransaction(dbInstance, storename, 'readonly');
+
+        let result = await tx.objectStore(storename).get(id);
+        return result;
+    }
+
+    public deleteRecord = async (storename: string, id: any): Promise<string> => {
+        const dbInstance = await this.dbPromise;
+        const tx = this.getTransaction(dbInstance, storename, 'readwrite');
+
+        await tx.objectStore(storename).delete(id);
+
+        return `Record with id: ${id} deleted`;
+    }
+
+    private getTransaction(dbInstance: DB, stName: string, mode?: 'readonly' | 'readwrite') {
+        const tx = dbInstance.transaction(stName, mode);
+        tx.complete.catch(
+            err => {
+                console.log((err as Error).message);
+            });
+
+        return tx;
+    }
+
+    // Currently don't support aggregate keys
+    private checkForKeyPath(objectStore: ObjectStore<any, any>, data: any) {
+        if (!objectStore.autoIncrement || !objectStore.keyPath) {
+            return data;
+        }
+
+        if (typeof objectStore.keyPath !== 'string') {
+            return data;
+        }
+
+        const keyPath = objectStore.keyPath as string;
+
+        if (!data[keyPath]) {
+            delete data[keyPath];
+        }
+        return data;
+    }
+
     private upgradeDatabase(upgradeDB: UpgradeDB, dbStore: IDbStore) {
         if (upgradeDB.oldVersion < dbStore.version) {
             if (dbStore.stores) {
-                for (let i = 0; i < dbStore.stores.length; i++) {
-                    const storeSchema = dbStore.stores[i];
-                    if (!upgradeDB.objectStoreNames.contains(storeSchema.name)) {
-                        let primaryKey = storeSchema.primaryKey;
+                for (var store of dbStore.stores) {
+                    if (!upgradeDB.objectStoreNames.contains(store.name)) {
+                        let primaryKey = store.primaryKey;
+
                         if (!primaryKey) {
                             primaryKey = { name: 'id', keyPath: 'id', auto: true };
                         }
-                        const store = upgradeDB.createObjectStore(storeSchema.name, { keyPath: primaryKey.name, autoIncrement: primaryKey.auto });
-                        for (let j = 0; j < storeSchema.indexes.length; j++) {
-                            const index = storeSchema.indexes[j];
-                            store.createIndex(index.name, index.keyPath, { unique: index.unique });
+
+                        const newStore = upgradeDB.createObjectStore(store.name, { keyPath: primaryKey.name, autoIncrement: primaryKey.auto });
+
+                        for (var index of store.indexes) {
+                            newStore.createIndex(index.name, index.keyPath, { unique: index.unique });
                         }
                     }
                 }

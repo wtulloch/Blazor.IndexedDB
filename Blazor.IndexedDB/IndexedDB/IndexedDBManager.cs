@@ -1,17 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 
-namespace Blazor.IndexedDB
+namespace TG.Blazor.IndexedDB
 {
     /// <summary>
-    /// 
+    /// Provides functionality for accessing IndexedDB from Blazor application
     /// </summary>
     public class IndexedDBManager
     {
+
         private readonly DbStore _dbStore;
         private const string InteropPrefix = "TimeGhost.IndexedDbManager";
         private bool _isOpen;
+
+
+        public event EventHandler<IndexedDBNotificationArgs> ActionCompleted;
         public IndexedDBManager()
         {
         }
@@ -22,81 +27,174 @@ namespace Blazor.IndexedDB
 
         public List<StoreSchema> Stores => _dbStore.Stores;
 
-        public async Task<string> OpenDb()
+
+        /// <summary>
+        /// Opens IndexedDb
+        /// </summary>
+        /// <returns></returns>
+        public async Task OpenDb()
         {
-            var result = await CallJavascript<DbStore,string>(DbFunctions.OpenDb, _dbStore);
+            var result = await CallJavascript<string>(DbFunctions.OpenDb, _dbStore, new { Instance = new DotNetObjectRef(this), MethodName= "Callback"});
             _isOpen = true;
-            return result;
+
+            RaiseNotification(IndexDBActionOutCome.Successful, result);
         }
 
-        public async Task<string> AddRecord<T>(StoreRecord<T> recordToAdd)
+        
+
+        public async Task AddRecord<T>(StoreRecord<T> recordToAdd)
         {
-            if (!_isOpen) 
-            await OpenDb();
-            return await CallJavascript<StoreRecord<T>, string>(DbFunctions.AddRecord, recordToAdd);
+            await EnsureDbOpen();
+            try
+            {
+                var result = await CallJavascript<StoreRecord<T>, string>(DbFunctions.AddRecord, recordToAdd);
+                RaiseNotification(IndexDBActionOutCome.Successful, result);
+            }
+            catch (JSException e)
+            {
+                RaiseNotification(IndexDBActionOutCome.Failed, e.Message);
+            }
         }
 
-        public async Task<string> UpdateRecord<T>(StoreRecord<T> recordToUpdate)
+        public async Task UpdateRecord<T>(StoreRecord<T> recordToUpdate)
         {
-            if (!_isOpen)
-                await OpenDb();
-            return await CallJavascript<StoreRecord<T>, string>(DbFunctions.UpdateRecord, recordToUpdate);
+            await EnsureDbOpen();
+            try
+            {
+                var result = await CallJavascript<StoreRecord<T>, string>(DbFunctions.UpdateRecord, recordToUpdate);
+                RaiseNotification(IndexDBActionOutCome.Successful, result);
+            }
+            catch (JSException jse)
+            {
+                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+            }
         }
 
-      
-
-        public async Task<List<T>> GetRecords<T>(string storeName)
+        public async Task<List<TResult>> GetRecords<TResult>(string storeName)
         {
-            if (!_isOpen)
-                await OpenDb();
+            await EnsureDbOpen();
+            try
+            {
+                var results = await CallJavascript<List<TResult>>(DbFunctions.GetRecords, storeName);
 
-            var results = await CallJavascript<string, string>(DbFunctions.GetRecords, storeName);
+                RaiseNotification(IndexDBActionOutCome.Successful, $"Retrieved {results.Count} records from {storeName}");
 
-            return Json.Deserialize<List<T>>(results);
+                return results;
+            }
+            catch (JSException jse)
+            {
+                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                return default;
+            }
+           
         }
 
-        public async Task<T> GetRecordById<T>(string storeName, string id)
+        public async Task<TResult> GetRecordById<TInput, TResult>(string storeName, TInput id)
         {
-            var data = new StoreRecord<string> { Storename = storeName, Data = id };
-            var record = await CallJavascript<StoreRecord<string>, string>(DbFunctions.GetRecordById,data );
-            return Json.Deserialize<T>(record);
+            await EnsureDbOpen();
+
+            var data = new { Storename = storeName, Id = id };
+            try
+            {
+                var record = await CallJavascript<TResult>(DbFunctions.GetRecordById, storeName, id);
+
+                return record;
+            }
+            catch (JSException jse)
+            {
+                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                return default;
+            }
         }
 
-        public async Task<string> DeleteRecord(string storeName, string id)
+        public async Task DeleteRecord<TInput>(string storeName, TInput id)
         {
-            var data = new StoreRecord<string> { Storename = storeName, Data = id };
-            var result = await CallJavascript<StoreRecord<string>, string>(DbFunctions.DeleteRecord, data);
-            return result;
+            try
+            {
+                await CallJavascript<string>(DbFunctions.DeleteRecord, storeName, id);
+                RaiseNotification(IndexDBActionOutCome.Deleted, $"Deleted from {storeName} record: {id}");
+            }
+            catch (JSException jse)
+            {
+                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+            }
         }
 
-        private async Task<TResult> CallJavascript<TData,TResult>(string functionName,TData data)
+        public async Task ClearStore(string storeName)
+        {
+            if (string.IsNullOrEmpty(storeName))
+            {
+                throw new ArgumentException("Parameter cannot be null or empty", nameof(storeName));
+            }
+
+            try
+            {
+                var result =  await CallJavascript<string, string>(DbFunctions.ClearStore, storeName);
+                RaiseNotification(IndexDBActionOutCome.Successful, result);
+            }
+            catch (JSException jse)
+            {
+                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+
+            }
+            
+        }
+        public async Task<TResult> GetRecordByIndex<TInput, TResult>(StoreIndexQuery<TInput> searchQuery)
+        {
+            await EnsureDbOpen();
+
+            try
+            {
+                var result = await CallJavascript<StoreIndexQuery<TInput>, TResult>(DbFunctions.GetRecordByIndex, searchQuery);
+                return result;
+            }
+            catch (JSException jse)
+            {
+                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                return default;
+            }
+        }
+
+        public async Task<IList<TResult>> GetAllRecordsByIndex<TInput, TResult>(StoreIndexQuery<TInput> searchQuery)
+        {
+            await EnsureDbOpen();
+            try
+            {
+                var results = await CallJavascript<StoreIndexQuery<TInput>, IList<TResult>>(DbFunctions.GetAllRecordsByIndex, searchQuery);
+                RaiseNotification(IndexDBActionOutCome.Successful, 
+                    $"Retrieved {results.Count} records, for {searchQuery.QueryValue} on index {searchQuery.IndexName}");
+                return results;
+            }
+            catch (JSException jse)
+            {
+                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                return default;
+            }
+        }
+
+        [JSInvokable("Callback")]
+        public void CalledFromJS(string message)
+        {
+            Console.WriteLine($"called from JS: {message}");
+        }
+        private async Task<TResult> CallJavascript<TData, TResult>(string functionName, TData data)
         {
             return await JSRuntime.Current.InvokeAsync<TResult>($"{InteropPrefix}.{functionName}", data);
         }
-    }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class StoreRecord<T>
-    {
-        public string Storename { get; set; }
-        public T Data { get; set; }
-    }
+        private async Task<TResult> CallJavascript<TResult>(string functionName, params object[] args)
+        {
+            return await JSRuntime.Current.InvokeAsync<TResult>($"{InteropPrefix}.{functionName}", args);
+        }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public struct DbFunctions
-    {
-        public const string CreateDb = "createDb";
-        public const string AddRecord = "addRecord";
-        public const string UpdateRecord = "updateRecord";
-        public const string GetRecords = "getRecords";
-        public const string OpenDb = "openDb";
-        public const string DeleteRecord = "deleteRecord";
-        public const string GetRecordById = "getRecordById";
+        private async Task EnsureDbOpen()
+        {
+            if (!_isOpen) await OpenDb();
+        }
+
+        private void RaiseNotification(IndexDBActionOutCome outcome, string message)
+        {
+            ActionCompleted?.Invoke(this, new IndexedDBNotificationArgs { Outcome = outcome, Message = message });
+        }
     }
 }
-

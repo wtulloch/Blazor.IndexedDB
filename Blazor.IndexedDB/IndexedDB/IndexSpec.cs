@@ -1,5 +1,8 @@
-﻿namespace Blazor.IndexedDB
+﻿namespace TG.Blazor.IndexedDB
 {
+    /// <summary>
+    /// Defines an Index for a given object store.
+    /// </summary>
     public class IndexSpec
     {
         public string Name { get; set; }

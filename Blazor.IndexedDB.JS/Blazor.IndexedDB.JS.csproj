@@ -17,8 +17,9 @@
     <WebpackInputs Include="**\*.ts" Exclude="dist\**;node_modules\**; **\*.d.ts" />
   </ItemGroup>
   <ItemGroup>
-    <WebpackInputs Remove="src\IDatabaseSetup.ts" />
+    <WebpackInputs Remove="src\InteropInterfaces.ts" />
   </ItemGroup>
+ 
   
   
   <Target Name="EnsureNpmRestored" Condition="!Exists('node_modules')">
@@ -28,7 +29,8 @@
 
   <Target Name="RunWebpack" AfterTargets="ResolveReferences" Inputs="@(WebpackInputs)" Outputs="dist\indexedDb.Blazor.js" DependsOnTargets="EnsureNpmRestored">
     <RemoveDir Directories="dist" />
-    <Exec Command="npm run build" />
+    <Exec Command="npm run build:debug" Condition="'$(Configuration)' == 'Debug'" />
+     <Exec Command="npm run build:production" Condition="'$(Configuration)' != 'Debug'" />
     <ItemGroup>
       <EmbeddedResource Include="dist\**\*.js" LogicalName="blazor:js:%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
