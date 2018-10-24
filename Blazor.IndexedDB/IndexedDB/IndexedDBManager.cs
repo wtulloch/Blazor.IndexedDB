@@ -6,7 +6,7 @@ using Microsoft.JSInterop;
 namespace TG.Blazor.IndexedDB
 {
     /// <summary>
-    /// Provides 
+    /// Provides functionality for accessing IndexedDB from Blazor application
     /// </summary>
     public class IndexedDBManager
     {
@@ -14,6 +14,7 @@ namespace TG.Blazor.IndexedDB
         private readonly DbStore _dbStore;
         private const string InteropPrefix = "TimeGhost.IndexedDbManager";
         private bool _isOpen;
+
 
         public event EventHandler<IndexedDBNotificationArgs> ActionCompleted;
         public IndexedDBManager()
@@ -26,6 +27,11 @@ namespace TG.Blazor.IndexedDB
 
         public List<StoreSchema> Stores => _dbStore.Stores;
 
+
+        /// <summary>
+        /// Opens IndexedDb
+        /// </summary>
+        /// <returns></returns>
         public async Task OpenDb()
         {
             var result = await CallJavascript<string>(DbFunctions.OpenDb, _dbStore, new { Instance = new DotNetObjectRef(this), MethodName= "Callback"});
@@ -62,16 +68,25 @@ namespace TG.Blazor.IndexedDB
             {
                 RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
             }
-            
         }
 
-        public async Task<List<T>> GetRecords<T>(string storeName)
+        public async Task<List<TResult>> GetRecords<TResult>(string storeName)
         {
             await EnsureDbOpen();
+            try
+            {
+                var results = await CallJavascript<List<TResult>>(DbFunctions.GetRecords, storeName);
 
-            var results = await CallJavascript<string>(DbFunctions.GetRecords, storeName);
+                RaiseNotification(IndexDBActionOutCome.Successful, $"Retrieved {results.Count} records from {storeName}");
 
-            return Json.Deserialize<List<T>>(results);
+                return results;
+            }
+            catch (JSException jse)
+            {
+                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                return default;
+            }
+           
         }
 
         public async Task<TResult> GetRecordById<TInput, TResult>(string storeName, TInput id)
@@ -81,16 +96,15 @@ namespace TG.Blazor.IndexedDB
             var data = new { Storename = storeName, Id = id };
             try
             {
-                var record = await CallJavascript<string>(DbFunctions.GetRecordById, storeName, id);
+                var record = await CallJavascript<TResult>(DbFunctions.GetRecordById, storeName, id);
 
-                return Json.Deserialize<TResult>(record);
+                return record;
             }
             catch (JSException jse)
             {
                 RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
                 return default;
             }
-
         }
 
         public async Task DeleteRecord<TInput>(string storeName, TInput id)
@@ -134,9 +148,9 @@ namespace TG.Blazor.IndexedDB
                 var result = await CallJavascript<StoreIndexQuery<TInput>, TResult>(DbFunctions.GetRecordByIndex, searchQuery);
                 return result;
             }
-            catch (Exception e)
+            catch (JSException jse)
             {
-                Console.WriteLine($"tg: {e.Message}");
+                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
                 return default;
             }
         }
@@ -147,7 +161,8 @@ namespace TG.Blazor.IndexedDB
             try
             {
                 var results = await CallJavascript<StoreIndexQuery<TInput>, IList<TResult>>(DbFunctions.GetAllRecordsByIndex, searchQuery);
-                
+                RaiseNotification(IndexDBActionOutCome.Successful, 
+                    $"Retrieved {results.Count} records, for {searchQuery.QueryValue} on index {searchQuery.IndexName}");
                 return results;
             }
             catch (JSException jse)
@@ -177,12 +192,9 @@ namespace TG.Blazor.IndexedDB
             if (!_isOpen) await OpenDb();
         }
 
-
-
-        //currently just a test to see how events work in Blazor may remove.
-        private void RaiseNotification(IndexDBActionOutCome outcome, string result)
+        private void RaiseNotification(IndexDBActionOutCome outcome, string message)
         {
-            ActionCompleted?.Invoke(this, new IndexedDBNotificationArgs { Outcome = outcome, Message = result });
+            ActionCompleted?.Invoke(this, new IndexedDBNotificationArgs { Outcome = outcome, Message = message });
         }
     }
 }

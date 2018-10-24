@@ -1,25 +1,26 @@
 ﻿///// <reference path="Microsoft.JSInterop.d.ts"/>
 import idb from 'idb';
 import { DB, UpgradeDB, ObjectStore, Transaction } from 'idb';
-import {IDbStore, IIndexSearch, IIndexSpec,IStoreRecord, IStoreSchema, IDotNetInstanceWrapper  } from './interopInterfaces'; 
+import { IDbStore, IIndexSearch, IIndexSpec, IStoreRecord, IStoreSchema, IDotNetInstanceWrapper } from './interopInterfaces';
 
 
 
 export class IndexedDbManager {
-   
+
     private dbPromise: Promise<DB> = new Promise<DB>((resolve, reject) => { });
 
-    constructor() {}
+    constructor() { }
 
-    public openDb = (data:IDbStore, instanceWrapper: IDotNetInstanceWrapper): Promise<string> => {
+    public openDb = (data: IDbStore, instanceWrapper: IDotNetInstanceWrapper): Promise<string> => {
         const dbStore = data;
-        const test = instanceWrapper;
+        //just a test for the moment
         instanceWrapper.instance.invokeMethod(instanceWrapper.methodName, "Hello from the other side");
+
         return new Promise<string>((resolve, reject) => {
             this.dbPromise = idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
                 this.upgradeDatabase(upgradeDB, dbStore);
             });
-            
+
             resolve(`database ${data.dbName} open`);
         });
     }
@@ -28,75 +29,49 @@ export class IndexedDbManager {
         const stName = record.storename;
         let itemToSave = record.data;
         const dbInstance = await this.dbPromise;
-        const tx = this.getTransaction(dbInstance, stName,'readwrite');
+        const tx = this.getTransaction(dbInstance, stName, 'readwrite');
         const objectStore = tx.objectStore(stName);
-        
-         itemToSave = this.checkForKeyPath(objectStore, itemToSave);
-       
-        let returnValue: string="";
-        try {
-            const result = await objectStore.add(itemToSave, record.key);
-            returnValue = `Added new record with id ${result}`;
-        } catch (err) {
-             returnValue = (err as Error).message;
-        }
+
+        itemToSave = this.checkForKeyPath(objectStore, itemToSave);
+
+        let returnValue = '';
+        const result = await objectStore.add(itemToSave, record.key);
+        returnValue = `Added new record with id ${result}`;
 
         return returnValue;
     }
 
     public updateRecord = async (record: IStoreRecord): Promise<string> => {
         const stName = record.storename;
-        const itemToSave = record.data;
         const dbInstance = await this.dbPromise;
         const tx = this.getTransaction(dbInstance, stName, 'readwrite');
-        let returnValue: string;
 
-        try {
-            const result = await tx.objectStore(stName).put(itemToSave,record.key);
-            returnValue = `updated record with id ${result}`;
-        } catch (err) {
-            
-            returnValue = (err as Error).message;
-        }
-        
-        return returnValue;
+        const result = await tx.objectStore(stName).put(record.data, record.key);
+
+        return `updated record with id ${result}`;
     }
 
-    public getRecords = async (storeName: string): Promise<string> => {
+    public getRecords = async (storeName: string): Promise<any> => {
         const dbInstance = await this.dbPromise;
-        let returnValue: string;
         const tx = this.getTransaction(dbInstance, storeName, 'readonly');
 
-        try {
-            let results = await tx.objectStore(storeName).getAll();
-            console.log(results);
-            returnValue = JSON.stringify(results);
-        } catch (err) {
-           
-            returnValue = (err as Error).message;
-        }
+        let results = await tx.objectStore(storeName).getAll();
 
-        return returnValue;
+        return results;
     }
 
     public clearStore = async (storeName: string): Promise<string> => {
         const dbInstance = await this.dbPromise;
         const tx = this.getTransaction(dbInstance, storeName, 'readwrite');
-        try {
-            await tx.objectStore(storeName).clear();
-            return `Store ${storeName} cleared`;
-        } catch (err) {
-            return (err as Error).message;
-        }
+
+        await tx.objectStore(storeName).clear();
+
+        return `Store ${storeName} cleared`;
     }
 
     public getRecordByIndex = async (searchData: IIndexSearch): Promise<any> => {
         const dbInstance = await this.dbPromise;
         const tx = this.getTransaction(dbInstance, searchData.storename, 'readonly');
-
-        if (searchData.allMatching) {
-
-        }
 
         const results = await tx.objectStore(searchData.storename)
             .index(searchData.indexName)
@@ -108,59 +83,45 @@ export class IndexedDbManager {
     public getAllRecordsByIndex = async (searchData: IIndexSearch): Promise<any> => {
         const dbInstance = await this.dbPromise;
         const tx = this.getTransaction(dbInstance, searchData.storename, 'readonly');
-        let results:any[] = [];
-     
-        let index = 0;
-       tx.objectStore(searchData.storename)
+        let results: any[] = [];
+
+        tx.objectStore(searchData.storename)
             .index(searchData.indexName)
             .iterateCursor(cursor => {
                 if (!cursor) {
                     return;
                 }
+
                 if (cursor.key === searchData.queryValue) {
                     results.push(cursor.value);
-                    index++;
                 }
-               
+
                 cursor.continue();
             });
 
         await tx.complete;
-       
+
         return results;
     }
 
-    public getRecordById = async (storename: string, id:any): Promise<string> => {
-        
+    public getRecordById = async (storename: string, id: any): Promise<any> => {
+
         const dbInstance = await this.dbPromise;
         const tx = this.getTransaction(dbInstance, storename, 'readonly');
-        let returnValue: string;
 
-        try {
-            let result = await tx.objectStore(storename).get(id);
-            returnValue = JSON.stringify(result);
-
-        } catch (err) {
-            
-            returnValue = (err as Error).message;
-        }
-
-        return returnValue;
+        let result = await tx.objectStore(storename).get(id);
+        return result;
     }
 
     public deleteRecord = async (storename: string, id: any): Promise<string> => {
         const dbInstance = await this.dbPromise;
         const tx = this.getTransaction(dbInstance, storename, 'readwrite');
 
-        try {
-            await tx.objectStore(storename).delete(id); 
-            return 'Record deleted';
-        } catch (err) {
-           
-            return (err as Error).message;
-        }
+        await tx.objectStore(storename).delete(id);
+
+        return `Record with id: ${id} deleted`;
     }
- 
+
     private getTransaction(dbInstance: DB, stName: string, mode?: 'readonly' | 'readwrite') {
         const tx = dbInstance.transaction(stName, mode);
         tx.complete.catch(
@@ -177,12 +138,12 @@ export class IndexedDbManager {
             return data;
         }
 
-        if ( typeof objectStore.keyPath !== 'string' ) {
+        if (typeof objectStore.keyPath !== 'string') {
             return data;
         }
 
         const keyPath = objectStore.keyPath as string;
-       
+
         if (!data[keyPath]) {
             delete data[keyPath];
         }
