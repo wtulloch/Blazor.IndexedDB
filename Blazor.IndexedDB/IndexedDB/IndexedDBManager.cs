@@ -40,6 +40,12 @@ namespace TG.Blazor.IndexedDB
             RaiseNotification(IndexDBActionOutCome.Successful, result);
         }
 
+        public async Task DeleteDb(string dbName)
+        {
+            var result = await CallJavascript<string>(DbFunctions.DeleteDb, dbName);
+
+            RaiseNotification(IndexDBActionOutCome.Successful, result);
+        }
         
 
         public async Task AddRecord<T>(StoreRecord<T> recordToAdd)
