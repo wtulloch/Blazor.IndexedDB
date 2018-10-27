@@ -1,11 +1,42 @@
 ﻿@page "/indexedDb-management"
 @using IndexedDB
+@*@implements IDisposable*@
+
 <h1>IndexedDB Management Examples</h1>
-<div class="d-flex"></div>
+<div class="d-flex">
+    <button class="btn btn-outline-primary m-4" onclick="@CreateDatabase">Create Database</button>
+    <button class="btn btn-outline-primary m-4" onclick="@DeleteDatabase">Delete Database</button>
+
+</div>
 
 @functions{
 
+    private IndexedDBManager dbManager;
+
     protected DbStore CurrentDbStore { get; set; }
 
+    protected async Task CreateDatabase()
+    {
+        CurrentDbStore = new DbStore();
+        CurrentDbStore.DbName = "RoughTest";
+        CurrentDbStore.Version = 1;
+        dbManager = new IndexedDBManager(CurrentDbStore);
+
+        dbManager.ActionCompleted += OnIndexedDbNotification;
+
+        await dbManager.OpenDb();
+
+    }
+
+    protected async Task DeleteDatabase()
+    {
+        await dbManager.DeleteDb("RoughTest");
+        Console.WriteLine("Stuff");
+    }
+
+    private void OnIndexedDbNotification(object sender, IndexedDBNotificationArgs args)
+    {
+        Console.WriteLine(args.Message);
+    }
 
 }
