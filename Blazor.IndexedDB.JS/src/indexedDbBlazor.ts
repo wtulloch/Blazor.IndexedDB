@@ -22,6 +22,14 @@ export class IndexedDbManager {
         return `IndexedDB ${data.dbName} opened`;
     }
 
+    public deleteDb = async(dbName: string): Promise<string> => {
+        this.dbInstance.close();
+
+        await idb.delete(dbName);
+
+        return `The database ${dbName} has been deleted`;
+}
+
     public addRecord = async (record: IStoreRecord): Promise<string> => {
         const stName = record.storename;
         let itemToSave = record.data;
