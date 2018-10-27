@@ -7,29 +7,25 @@ import { IDbStore, IIndexSearch, IIndexSpec, IStoreRecord, IStoreSchema, IDotNet
 
 export class IndexedDbManager {
 
-    private dbPromise: Promise<DB> = new Promise<DB>((resolve, reject) => { });
+    private dbInstance:any = null;
 
     constructor() { }
 
-    public openDb = (data: IDbStore, instanceWrapper: IDotNetInstanceWrapper): Promise<string> => {
+    public openDb = async (data: IDbStore, instanceWrapper: IDotNetInstanceWrapper): Promise<string> => {
         const dbStore = data;
         //just a test for the moment
         instanceWrapper.instance.invokeMethod(instanceWrapper.methodName, "Hello from the other side");
-
-        return new Promise<string>((resolve, reject) => {
-            this.dbPromise = idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
+       
+            this.dbInstance =  await idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
                 this.upgradeDatabase(upgradeDB, dbStore);
             });
-
-            resolve(`database ${data.dbName} open`);
-        });
+        return `IndexedDB ${data.dbName} opened`;
     }
 
     public addRecord = async (record: IStoreRecord): Promise<string> => {
         const stName = record.storename;
         let itemToSave = record.data;
-        const dbInstance = await this.dbPromise;
-        const tx = this.getTransaction(dbInstance, stName, 'readwrite');
+        const tx = this.getTransaction(this.dbInstance, stName, 'readwrite');
         const objectStore = tx.objectStore(stName);
 
         itemToSave = this.checkForKeyPath(objectStore, itemToSave);
@@ -43,8 +39,7 @@ export class IndexedDbManager {
 
     public updateRecord = async (record: IStoreRecord): Promise<string> => {
         const stName = record.storename;
-        const dbInstance = await this.dbPromise;
-        const tx = this.getTransaction(dbInstance, stName, 'readwrite');
+        const tx = this.getTransaction(this.dbInstance, stName, 'readwrite');
 
         const result = await tx.objectStore(stName).put(record.data, record.key);
 
@@ -52,8 +47,7 @@ export class IndexedDbManager {
     }
 
     public getRecords = async (storeName: string): Promise<any> => {
-        const dbInstance = await this.dbPromise;
-        const tx = this.getTransaction(dbInstance, storeName, 'readonly');
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
 
         let results = await tx.objectStore(storeName).getAll();
 
@@ -61,8 +55,8 @@ export class IndexedDbManager {
     }
 
     public clearStore = async (storeName: string): Promise<string> => {
-        const dbInstance = await this.dbPromise;
-        const tx = this.getTransaction(dbInstance, storeName, 'readwrite');
+        
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readwrite');
 
         await tx.objectStore(storeName).clear();
 
@@ -70,19 +64,17 @@ export class IndexedDbManager {
     }
 
     public getRecordByIndex = async (searchData: IIndexSearch): Promise<any> => {
-        const dbInstance = await this.dbPromise;
-        const tx = this.getTransaction(dbInstance, searchData.storename, 'readonly');
-
+        const tx = this.getTransaction(this.dbInstance, searchData.storename, 'readonly');
         const results = await tx.objectStore(searchData.storename)
             .index(searchData.indexName)
             .get(searchData.queryValue);
 
+        await tx.complete;
         return results;
     }
 
     public getAllRecordsByIndex = async (searchData: IIndexSearch): Promise<any> => {
-        const dbInstance = await this.dbPromise;
-        const tx = this.getTransaction(dbInstance, searchData.storename, 'readonly');
+        const tx = this.getTransaction(this.dbInstance, searchData.storename, 'readonly');
         let results: any[] = [];
 
         tx.objectStore(searchData.storename)
@@ -106,16 +98,14 @@ export class IndexedDbManager {
 
     public getRecordById = async (storename: string, id: any): Promise<any> => {
 
-        const dbInstance = await this.dbPromise;
-        const tx = this.getTransaction(dbInstance, storename, 'readonly');
+        const tx = this.getTransaction(this.dbInstance, storename, 'readonly');
 
         let result = await tx.objectStore(storename).get(id);
         return result;
     }
 
     public deleteRecord = async (storename: string, id: any): Promise<string> => {
-        const dbInstance = await this.dbPromise;
-        const tx = this.getTransaction(dbInstance, storename, 'readwrite');
+        const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
 
         await tx.objectStore(storename).delete(id);
 
