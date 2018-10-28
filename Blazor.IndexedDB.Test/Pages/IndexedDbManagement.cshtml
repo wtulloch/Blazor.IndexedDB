@@ -31,7 +31,6 @@
     protected async Task DeleteDatabase()
     {
         await dbManager.DeleteDb("RoughTest");
-        Console.WriteLine("Stuff");
     }
 
     private void OnIndexedDbNotification(object sender, IndexedDBNotificationArgs args)

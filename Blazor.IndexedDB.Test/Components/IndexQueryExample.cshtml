@@ -1,7 +1,12 @@
 ﻿@using Blazor.IndexedDB.Test.Models
 @using TG.Blazor.IndexedDB
 @inject IndexedDBManager DbManager
-
+<div>
+<p>To query by index select index and enter a value. This will return the first record that matches the value. <br />
+   To get all the records that match a given value, check the "Return all matches" checkbox. <br />
+    <em>Note:</em> IndexedDB does not support partial matches or wildcards.
+</p>
+</div>
 <div class="d-flex flex-row align-items-start">
     <div class="d-flex flex-column">
         <div class="form-group">
