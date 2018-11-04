@@ -7,6 +7,9 @@
     <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
     <LangVersion>7.3</LangVersion>
     <AssemblyName>TG.Blazor.IndexedDB</AssemblyName>
+    <Version>0.6.0</Version>
+    <Authors>William Tulloch</Authors>
+    <Description>A Blazor library for interacting with IndexedDB</Description>
   </PropertyGroup>
 
   <ItemGroup>

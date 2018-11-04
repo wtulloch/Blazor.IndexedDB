@@ -2,6 +2,7 @@
 
 namespace TG.Blazor.IndexedDB
 {
+
     public class IndexedDBNotificationArgs : EventArgs
     {
         public IndexDBActionOutCome Outcome { get; set; }

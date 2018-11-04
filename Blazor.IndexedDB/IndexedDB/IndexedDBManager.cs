@@ -15,7 +15,9 @@ namespace TG.Blazor.IndexedDB
         private const string InteropPrefix = "TimeGhost.IndexedDbManager";
         private bool _isOpen;
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         public event EventHandler<IndexedDBNotificationArgs> ActionCompleted;
         public IndexedDBManager()
         {
@@ -29,7 +31,8 @@ namespace TG.Blazor.IndexedDB
 
 
         /// <summary>
-        /// Opens IndexedDb
+        /// Opens the IndexedDB defined in the DbStore. Under the covers will create the database if it does not exist
+        /// and create the stores defined in DbStore.
         /// </summary>
         /// <returns></returns>
         public async Task OpenDb()
@@ -40,14 +43,28 @@ namespace TG.Blazor.IndexedDB
             RaiseNotification(IndexDBActionOutCome.Successful, result);
         }
 
+        /// <summary>
+        /// Deletes the database corresponding to the dbName passed in
+        /// </summary>
+        /// <param name="dbName">The name of database to delete</param>
+        /// <returns></returns>
         public async Task DeleteDb(string dbName)
         {
+            if (string.IsNullOrEmpty(dbName))
+            {
+                throw new ArgumentException("dbName cannot be null or empty", nameof(dbName));
+            }
             var result = await CallJavascript<string>(DbFunctions.DeleteDb, dbName);
 
             RaiseNotification(IndexDBActionOutCome.Successful, result);
         }
         
-
+        /// <summary>
+        /// Adds a new record/object to the specified store
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="recordToAdd">An instance of StoreRecord that provides the store name and the data to add</param>
+        /// <returns></returns>
         public async Task AddRecord<T>(StoreRecord<T> recordToAdd)
         {
             await EnsureDbOpen();
@@ -62,6 +79,12 @@ namespace TG.Blazor.IndexedDB
             }
         }
 
+        /// <summary>
+        /// Updates and existing record
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="recordToUpdate">An instance of StoreRecord with the store name and the record to update</param>
+        /// <returns></returns>
         public async Task UpdateRecord<T>(StoreRecord<T> recordToUpdate)
         {
             await EnsureDbOpen();
@@ -76,6 +99,12 @@ namespace TG.Blazor.IndexedDB
             }
         }
 
+        /// <summary>
+        /// Gets all of the records in a given store.
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="storeName">The name of the store from which to retrieve the records</param>
+        /// <returns></returns>
         public async Task<List<TResult>> GetRecords<TResult>(string storeName)
         {
             await EnsureDbOpen();
@@ -95,6 +124,14 @@ namespace TG.Blazor.IndexedDB
            
         }
 
+        /// <summary>
+        /// Retrieve a record by id
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="storeName">The name of the  store to retrieve the record from</param>
+        /// <param name="id">the id of the record</param>
+        /// <returns></returns>
         public async Task<TResult> GetRecordById<TInput, TResult>(string storeName, TInput id)
         {
             await EnsureDbOpen();
@@ -112,7 +149,13 @@ namespace TG.Blazor.IndexedDB
                 return default;
             }
         }
-
+        /// <summary>
+        /// Deletes a reocrd from the store based on the id
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <param name="storeName"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task DeleteRecord<TInput>(string storeName, TInput id)
         {
             try
@@ -126,6 +169,11 @@ namespace TG.Blazor.IndexedDB
             }
         }
 
+        /// <summary>
+        /// Clears all of the records from a given store.
+        /// </summary>
+        /// <param name="storeName">The name of the store to clear the records from</param>
+        /// <returns></returns>
         public async Task ClearStore(string storeName)
         {
             if (string.IsNullOrEmpty(storeName))
@@ -145,6 +193,14 @@ namespace TG.Blazor.IndexedDB
             }
             
         }
+
+        /// <summary>
+        /// Returns the first record that matches a query against a given index
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="searchQuery">an instance of StoreIndexQuery</param>
+        /// <returns></returns>
         public async Task<TResult> GetRecordByIndex<TInput, TResult>(StoreIndexQuery<TInput> searchQuery)
         {
             await EnsureDbOpen();
@@ -160,7 +216,13 @@ namespace TG.Blazor.IndexedDB
                 return default;
             }
         }
-
+        /// <summary>
+        /// Gets all of the records that match a given query in the specified index.
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="searchQuery"></param>
+        /// <returns></returns>
         public async Task<IList<TResult>> GetAllRecordsByIndex<TInput, TResult>(StoreIndexQuery<TInput> searchQuery)
         {
             await EnsureDbOpen();
