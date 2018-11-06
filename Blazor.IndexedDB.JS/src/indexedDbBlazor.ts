@@ -38,11 +38,9 @@ export class IndexedDbManager {
 
         itemToSave = this.checkForKeyPath(objectStore, itemToSave);
 
-        let returnValue = '';
         const result = await objectStore.add(itemToSave, record.key);
-        returnValue = `Added new record with id ${result}`;
 
-        return returnValue;
+        return `Added new record with id ${result}`;
     }
 
     public updateRecord = async (record: IStoreRecord): Promise<string> => {
@@ -50,7 +48,7 @@ export class IndexedDbManager {
         const tx = this.getTransaction(this.dbInstance, stName, 'readwrite');
 
         const result = await tx.objectStore(stName).put(record.data, record.key);
-
+       
         return `updated record with id ${result}`;
     }
 
@@ -58,6 +56,8 @@ export class IndexedDbManager {
         const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
 
         let results = await tx.objectStore(storeName).getAll();
+
+        await tx.complete;
 
         return results;
     }
@@ -67,6 +67,7 @@ export class IndexedDbManager {
         const tx = this.getTransaction(this.dbInstance, storeName, 'readwrite');
 
         await tx.objectStore(storeName).clear();
+        await tx.complete;
 
         return `Store ${storeName} cleared`;
     }
