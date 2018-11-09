@@ -16,7 +16,7 @@ namespace TG.Blazor.IndexedDB
         private bool _isOpen;
 
         /// <summary>
-        /// 
+        /// A notification event that is raised when an action is completed
         /// </summary>
         public event EventHandler<IndexedDBNotificationArgs> ActionCompleted;
         public IndexedDBManager()
