@@ -3,7 +3,9 @@
 @using TG.Blazor.IndexedDB
 @using Microsoft.AspNetCore.Blazor.Components
 @using Microsoft.JSInterop
+@implements IDisposable
 @inject IndexedDBManager DbManager
+
 <div>
     <p><b>status:</b> @Message</p>
 </div>
@@ -32,7 +34,7 @@
         {
 
             <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:200px">
-                 <p>Id: @person.Id</p>
+                <p>Id: @person.Id</p>
                 <p>First Name: @person.FirstName</p>
                 <p>Last Name: @person.LastName</p>
                 <div>
@@ -60,7 +62,10 @@
 
     }
 
-    
+    public void Dispose()
+    {
+        DbManager.ActionCompleted -= OnIndexedDbNotification;
+    }
 
     protected async void OpenDatabase()
     {
@@ -93,7 +98,7 @@
     {
         try
         {
-            CurrentPerson = await DbManager.GetRecordById<long,Person>(DbManager.Stores[0].Name,id);
+            CurrentPerson = await DbManager.GetRecordById<long, Person>(DbManager.Stores[0].Name, id);
         }
         catch (Exception e)
         {
@@ -113,8 +118,7 @@
 
         if (newRecord.Data.Id.HasValue)
         {
-            newRecord.Data.Id = 1000;
-             await DbManager.UpdateRecord(newRecord);
+            await DbManager.UpdateRecord(newRecord);
         }
         else
         {

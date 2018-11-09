@@ -1,11 +1,15 @@
 ﻿@using Blazor.IndexedDB.Test.Models
 @using TG.Blazor.IndexedDB
+@implements IDisposable
 @inject IndexedDBManager DbManager
 <div>
 <p>To query by index select index and enter a value. This will return the first record that matches the value. <br />
    To get all the records that match a given value, check the "Return all matches" checkbox. <br />
     <em>Note:</em> IndexedDB does not support partial matches or wildcards.
 </p>
+</div>
+<div>
+    <p><b>status:</b> @Message</p>
 </div>
 <div class="d-flex flex-row align-items-start">
     <div class="d-flex flex-column">
@@ -49,6 +53,8 @@
 
 @functions{
 
+    protected string Message { get; set; }
+
     protected List<string> Indexes { get; set; }
 
     protected string SelectedIndex { get; set; }
@@ -62,9 +68,16 @@
 
     protected override void OnInit()
     {
+        DbManager.ActionCompleted += OnIndexedDbNotification;
+
         Indexes = DbManager.Stores[0].Indexes.Select(id => id.Name).ToList();
 
 
+    }
+
+    public void Dispose()
+    {
+        DbManager.ActionCompleted -= OnIndexedDbNotification;
     }
 
     protected async Task SearchForRecords()
@@ -105,10 +118,11 @@
             }
             People.Add(result);
         }
+    }
 
-
-
-
+    private void OnIndexedDbNotification(object sender, IndexedDBNotificationArgs args)
+    {
+        Message = args.Message;
     }
 
 
