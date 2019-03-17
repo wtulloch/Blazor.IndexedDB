@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.JSInterop;
 
 namespace TG.Blazor.IndexedDB
 {
@@ -14,9 +15,11 @@ namespace TG.Blazor.IndexedDB
         /// <returns></returns>
         public static IServiceCollection AddIndexedDB(this IServiceCollection serviceCollection, Action<DbStore> options)
         {
-            var dbStore = new DbStore();
-            options(dbStore);
-            serviceCollection.TryAddSingleton(new IndexedDBManager(dbStore));
+            serviceCollection.TryAddSingleton<IndexedDBManager>((provider) => {
+                var dbStore = new DbStore();
+                options(dbStore);
+                return new IndexedDBManager(dbStore, provider.GetRequiredService<IJSRuntime>());
+            });
 
             return serviceCollection;
         }
