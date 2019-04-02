@@ -10,8 +10,8 @@ namespace TG.Blazor.IndexedDB
     /// </summary>
     public class IndexedDBManager
     {
-
         private readonly DbStore _dbStore;
+        private readonly IJSRuntime _jsRuntime;
         private const string InteropPrefix = "TimeGhost.IndexedDbManager";
         private bool _isOpen;
 
@@ -19,12 +19,11 @@ namespace TG.Blazor.IndexedDB
         /// A notification event that is raised when an action is completed
         /// </summary>
         public event EventHandler<IndexedDBNotificationArgs> ActionCompleted;
-        public IndexedDBManager()
-        {
-        }
-        public IndexedDBManager(DbStore dbStore)
+
+        public IndexedDBManager(DbStore dbStore, IJSRuntime jsRuntime)
         {
             _dbStore = dbStore;
+            _jsRuntime = jsRuntime;
         }
 
         public List<StoreSchema> Stores => _dbStore.Stores;
@@ -247,12 +246,12 @@ namespace TG.Blazor.IndexedDB
         }
         private async Task<TResult> CallJavascript<TData, TResult>(string functionName, TData data)
         {
-            return await JSRuntime.Current.InvokeAsync<TResult>($"{InteropPrefix}.{functionName}", data);
+            return await _jsRuntime.InvokeAsync<TResult>($"{InteropPrefix}.{functionName}", data);
         }
 
         private async Task<TResult> CallJavascript<TResult>(string functionName, params object[] args)
         {
-            return await JSRuntime.Current.InvokeAsync<TResult>($"{InteropPrefix}.{functionName}", args);
+            return await _jsRuntime.InvokeAsync<TResult>($"{InteropPrefix}.{functionName}", args);
         }
 
         private async Task EnsureDbOpen()

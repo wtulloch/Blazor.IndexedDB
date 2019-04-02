@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Blazor.Builder;
+using Microsoft.AspNetCore.Components.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using TG.Blazor.IndexedDB;
 
@@ -14,27 +14,26 @@ namespace Blazor.IndexedDB.Test
                 dbStore.DbName = "TheFactory";
                 dbStore.Version = 2;
 
-            dbStore.Stores.Add(new StoreSchema
-            {
-                Name = "Employees",
-                PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = true },
-                Indexes = new List<IndexSpec>
+                dbStore.Stores.Add(new StoreSchema
+                {
+                    Name = "Employees",
+                    PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = true },
+                    Indexes = new List<IndexSpec>
                     {
                         new IndexSpec{Name="firstName", KeyPath = "firstName", Auto=false},
                         new IndexSpec{Name="lastName", KeyPath = "lastName", Auto=false}
 
                     }
-            });
+                });
                 dbStore.Stores.Add(new StoreSchema
                 {
                     Name = "Outbox",
                     PrimaryKey = new IndexSpec { Auto = true }
-                }
-                    );
+                });
             });
         }
 
-        public void Configure(IBlazorApplicationBuilder app)
+        public void Configure(IComponentsApplicationBuilder app)
         {
             app.AddComponent<App>("app");
         }
