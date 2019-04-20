@@ -1,5 +1,6 @@
 ﻿@page "/indexedDb-management"
 @using IndexedDB
+@inject IJSRuntime JsRuntime
 @*@implements IDisposable*@
 
 <h1>IndexedDB Management Examples</h1>
@@ -20,7 +21,7 @@
         CurrentDbStore = new DbStore();
         CurrentDbStore.DbName = "RoughTest";
         CurrentDbStore.Version = 1;
-        dbManager = new IndexedDBManager(CurrentDbStore);
+        dbManager = new IndexedDBManager(CurrentDbStore, JsRuntime);
 
         dbManager.ActionCompleted += OnIndexedDbNotification;
 

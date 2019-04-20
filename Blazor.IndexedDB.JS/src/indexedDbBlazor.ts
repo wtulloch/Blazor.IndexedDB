@@ -3,72 +3,60 @@ import idb from 'idb';
 import { DB, UpgradeDB, ObjectStore, Transaction } from 'idb';
 import { IDbStore, IIndexSearch, IIndexSpec, IStoreRecord, IStoreSchema, IDotNetInstanceWrapper } from './interopInterfaces';
 
-
-
 export class IndexedDbManager {
-
-    private dbInstance:any = null;
+    private dbInstance: any = null;
 
     constructor() { }
 
     public openDb = async (data: IDbStore, instanceWrapper: IDotNetInstanceWrapper): Promise<string> => {
         const dbStore = data;
-        //just a test for the moment
-        instanceWrapper.instance.invokeMethod(instanceWrapper.methodName, "Hello from the other side");
-       
-            this.dbInstance =  await idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
-                this.upgradeDatabase(upgradeDB, dbStore);
-            });
+        this.dbInstance = await idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
+            this.upgradeDatabase(upgradeDB, dbStore);
+        });
+
         return `IndexedDB ${data.dbName} opened`;
     }
 
-    public deleteDb = async(dbName: string): Promise<string> => {
+    public deleteDb = async (dbName: string): Promise<string> => {
         this.dbInstance.close();
-
         await idb.delete(dbName);
-
         return `The database ${dbName} has been deleted`;
-}
+    }
 
     public addRecord = async (record: IStoreRecord): Promise<string> => {
-        const stName = record.storename;
-        let itemToSave = record.data;
-        const tx = this.getTransaction(this.dbInstance, stName, 'readwrite');
-        const objectStore = tx.objectStore(stName);
-
-        itemToSave = this.checkForKeyPath(objectStore, itemToSave);
-
-        const result = await objectStore.add(itemToSave, record.key);
-
-        return `Added new record with id ${result}`;
+        try {
+            const stName = record.storename;
+            let itemToSave = record.data;
+            const tx = this.getTransaction(this.dbInstance, stName, 'readwrite');
+            const objectStore = tx.objectStore(stName);
+            itemToSave = this.checkForKeyPath(objectStore, itemToSave);
+            const result = await objectStore.add(itemToSave, record.key);
+            return `Added new record with id ${result}`;
+        }
+        catch (ex) {
+            console.log(ex);
+            return ex;
+        }
     }
 
     public updateRecord = async (record: IStoreRecord): Promise<string> => {
         const stName = record.storename;
         const tx = this.getTransaction(this.dbInstance, stName, 'readwrite');
-
         const result = await tx.objectStore(stName).put(record.data, record.key);
-       
         return `updated record with id ${result}`;
     }
 
     public getRecords = async (storeName: string): Promise<any> => {
         const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
-
         let results = await tx.objectStore(storeName).getAll();
-
         await tx.complete;
-
         return results;
     }
 
     public clearStore = async (storeName: string): Promise<string> => {
-        
         const tx = this.getTransaction(this.dbInstance, storeName, 'readwrite');
-
         await tx.objectStore(storeName).clear();
         await tx.complete;
-
         return `Store ${storeName} cleared`;
     }
 
@@ -106,18 +94,14 @@ export class IndexedDbManager {
     }
 
     public getRecordById = async (storename: string, id: any): Promise<any> => {
-
         const tx = this.getTransaction(this.dbInstance, storename, 'readonly');
-
         let result = await tx.objectStore(storename).get(id);
         return result;
     }
 
     public deleteRecord = async (storename: string, id: any): Promise<string> => {
         const tx = this.getTransaction(this.dbInstance, storename, 'readwrite');
-
         await tx.objectStore(storename).delete(id);
-
         return `Record with id: ${id} deleted`;
     }
 
@@ -163,7 +147,7 @@ export class IndexedDbManager {
                         const newStore = upgradeDB.createObjectStore(store.name, { keyPath: primaryKey.name, autoIncrement: primaryKey.auto });
 
                         for (var index of store.indexes) {
-                            newStore.createIndex(index.name, index.keyPath, { unique: index.unique});
+                            newStore.createIndex(index.name, index.keyPath, { unique: index.unique });
                         }
                     }
                 }
