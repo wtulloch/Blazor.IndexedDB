@@ -1,10 +1,11 @@
 ﻿@using System.ComponentModel
 @using Blazor.IndexedDB.Test.Models
 @using TG.Blazor.IndexedDB
-@using Microsoft.AspNetCore.Blazor.Components
+@using Microsoft.AspNetCore.Components
 @using Microsoft.JSInterop
 @implements IDisposable
 @inject IndexedDBManager DbManager
+@inject DbStore DbStore
 
 <div>
     <p><b>status:</b> @Message</p>
@@ -14,6 +15,7 @@
         <button class="btn btn-outline-primary m-4" onclick="@OpenDatabase">Open Database</button>
         <button class="btn btn-outline-primary m-4" onclick="@GetRecords">Get Records</button>
         <button class="btn btn-outline-primary m-4" onclick="@ClearStore"> Clear Store</button>
+        <button class="btn btn-outline-primary m-4" onclick="@DeleteDatabase"> Delete Database</button>
     </div>
 
     <div class="d-flex, flex-column">
@@ -141,6 +143,12 @@
     {
         await DbManager.ClearStore(DbManager.Stores[0].Name);
         GetRecords();
+    }
+
+    protected async Task DeleteDatabase()
+    {
+        await DbManager.DeleteDb(DbStore.DbName);
+        People.Clear();
     }
 
     private void OnIndexedDbNotification(object sender, IndexedDBNotificationArgs args)
