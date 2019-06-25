@@ -15,7 +15,7 @@
     <div class="d-flex flex-column">
         <div class="form-group">
             <label for="selectIndex">Select Index</label>
-            <select class="form-control" id="selectIndex" bind="@SelectedIndex">
+            <select class="form-control" id="selectIndex" @bind="@SelectedIndex">
                 <option value="default" selected></option>
                 @foreach (var index in Indexes)
                 {
@@ -25,11 +25,11 @@
         </div>
         <div class="form-group">
             <label for="searchValue">Search for</label>
-            <input id="searchValue" class="form-control" type="text" bind="@SearchString" />
+            <input id="searchValue" class="form-control" type="text" @bind="@SearchString" />
         </div>
         <div class="form-group">
 
-            <input id="selectAll" type="checkbox" class="form-check-input" bind="@GetAll" />
+            <input id="selectAll" type="checkbox" class="form-check-input" @bind="@GetAll" />
             <label for="selectAll">Return all matches</label>
         </div>
         <button class="btn btn-outline-primary" @onclick="@SearchForRecords">Search</button>

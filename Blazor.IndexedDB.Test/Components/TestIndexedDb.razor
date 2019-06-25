@@ -21,12 +21,12 @@
     <div class="d-flex, flex-column">
         <div class="m-4 border d-flex flex-column">
             <div class="m-4">
-                <label>First Name</label> <input id="firstName" type="text" bind="@CurrentPerson.FirstName" />
+                <label>First Name</label> <input id="firstName" type="text" @bind="@CurrentPerson.FirstName" />
             </div>
             <div class="m-4">
-                <label>Last Name</label> <input id="lastName" type="text" bind="@CurrentPerson.LastName" />
+                <label>Last Name</label> <input id="lastName" type="text" @bind="@CurrentPerson.LastName" />
             </div>
-            <button class="btn btn-primary m-4" onclick="@AddRecord">Add/Update Record</button>
+            <button class="btn btn-primary m-4" @onclick="@AddRecord">Add/Update Record</button>
         </div>
     </div>
 
@@ -40,8 +40,8 @@
                 <p>First Name: @person.FirstName</p>
                 <p>Last Name: @person.LastName</p>
                 <div>
-                    <button class="btn btn-outline-primary" onclick="@(() => EditPerson(person.Id.Value))">Edit</button>
-                    <button class="btn btn-outline-warning" onclick="@(() => DeleteRecord(person.Id.Value))">Delete</button>
+                    <button class="btn btn-outline-primary" @onclick="@(() => EditPerson(person.Id.Value))">Edit</button>
+                    <button class="btn btn-outline-warning" @onclick="@(() => DeleteRecord(person.Id.Value))">Delete</button>
                 </div>
             </div>
 
