@@ -114,10 +114,13 @@ B
 
 ## Change Logs
 
+### 2019-06-25
+* Upgraded to Blazor 3.0.0 preview 6.
+
 ### 2019-04-21
 
 * Upgraded to Blazor 0.9.0-preview3-19154-02 (thanks Behnam Emamian).
-* 
+
 
 
 
