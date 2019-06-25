@@ -6,7 +6,7 @@ This version currently provides the following functionality.
 * Add and update a record to/in a given store
 * Delete a record from a store 
 * Retrieve all records from a given store
-* Retrieve a record/or records from a store by index and value if th index exists
+* Retrieve a record/or records from a store by index and value if the index exists
 
 It does not, at the moment, support aggregate keys, searches using a range and some of the more obscure features of IndexedDB.
 
@@ -14,7 +14,7 @@ It does not, at the moment, support aggregate keys, searches using a range and s
 
 1. create a new instance of DbStore
 2. add one or more store definitions
-3. 
+3. Inject the created instance of IndexedDbManger into the component or page where you want to use it
 
 The library provides a service extension to create a singleton instance of the DbStore.
 
@@ -45,6 +45,10 @@ services.AddIndexedDB(dbStore =>
                     );
             });
 ```
+### A breakdown of what this does
+
+
+
 
 ## Using IndexedDBManager
 For the following examples we are going to assume that we have Person class which is defined as follows:
@@ -100,6 +104,7 @@ await DbManager.AddRecord(newRecord);
  ```
 
 ### getting a record using the index
+B
 
 ### Updating a record
 
@@ -107,8 +112,12 @@ await DbManager.AddRecord(newRecord);
 
 ### Query by index key
 
+## Change Logs
 
+### 2019-04-21
 
+* Upgraded to Blazor 0.9.0-preview3-19154-02 (thanks Behnam Emamian).
+* 
 
 
 
