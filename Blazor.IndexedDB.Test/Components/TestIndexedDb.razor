@@ -12,10 +12,10 @@
 </div>
 <div class="d-flex flex-row align-items-start">
     <div class="d-flex flex-column">
-        <button class="btn btn-outline-primary m-4" onclick="@OpenDatabase">Open Database</button>
-        <button class="btn btn-outline-primary m-4" onclick="@GetRecords">Get Records</button>
-        <button class="btn btn-outline-primary m-4" onclick="@ClearStore"> Clear Store</button>
-        <button class="btn btn-outline-primary m-4" onclick="@DeleteDatabase"> Delete Database</button>
+        <button class="btn btn-outline-primary m-4" @onclick="@OpenDatabase">Open Database</button>
+        <button class="btn btn-outline-primary m-4" @onclick="@GetRecords">Get Records</button>
+        <button class="btn btn-outline-primary m-4" @onclick="@ClearStore"> Clear Store</button>
+        <button class="btn btn-outline-primary m-4" @onclick="@DeleteDatabase"> Delete Database</button>
     </div>
 
     <div class="d-flex, flex-column">
@@ -50,7 +50,7 @@
     </div>
 </div>
 
-@functions
+@code
 {
     string Message { get; set; }
 

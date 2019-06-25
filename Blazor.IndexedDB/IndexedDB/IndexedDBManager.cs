@@ -36,7 +36,7 @@ namespace TG.Blazor.IndexedDB
         /// <returns></returns>
         public async Task OpenDb()
         {
-            var result = await CallJavascript<string>(DbFunctions.OpenDb, _dbStore, new { Instance = new DotNetObjectRef(this), MethodName= "Callback"});
+            var result = await CallJavascript<string>(DbFunctions.OpenDb, _dbStore, new { Instance = DotNetObjectRef.Create(this), MethodName= "Callback"});
             _isOpen = true;
 
             RaiseNotification(IndexDBActionOutCome.Successful, result);
