@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-     <TargetFramework>netstandard2.1</TargetFramework>
+     <TargetFramework>netstandard2.0</TargetFramework>
     <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
@@ -10,7 +10,9 @@
     
      <!--VS's FastUpToDateCheck doesn't consider .ts file changes, so it's necessary to disable it to get incremental builds to work correctly (albeit not as fast as if FastUpToDateCheck did work for them)--> 
     
-    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck> 
+    
+    <AssemblyName>TG.Blazor.IndexedDB.JS</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <WebpackInputs Include="**\*.ts" Exclude="dist\**;node_modules\**; **\*.d.ts" />

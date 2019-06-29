@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>TG.Blazor.IndexedDB</id>
+    <version>0.9.0-beta</version>
+    <authors>William Tulloch</authors>
+    <owners>William Tulloch</owners>
+    <license type="expression">MIT</license>
+    <repository type="Git" url="https://github.com/wtulloch/Blazor.IndexedDB" />
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A Blazor library for interacting with IndexedDB</description>
+    <releaseNotes>Updated to Blazor 3.0.0-preview6</releaseNotes>
+    <copyright>Copyright 2019 William Tulloch</copyright>
+    <tags>Microsoft ASP.NET Core Blazor  IndexedDB</tags>
+    <dependencies>
+      <group targetFramework=".NetStandard2.0">
+        <dependency id="Microsoft.AspNetCore.Components.Browser" version="3.0.0-preview6.19307.2"  exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Debug\netstandard2.0\TG.Blazor.IndexedDB.JS.dll" target="lib\netstandard2.0\TG.Blazor.IndexedDb.JS.dll" />
+    <file src="bin\Debug\netstandard2.0\TG.Blazor.IndexedDB.dll" target="lib\netstandard2.0\TG.Blazor.IndexedDB.dll" />
+  </files>
+</package>

@@ -1,18 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <OutputType>Library</OutputType>
     <IsPackable>true</IsPackable>
     <RazorLangVersion>3.0</RazorLangVersion>
     <LangVersion>7.3</LangVersion>
     <AssemblyName>TG.Blazor.IndexedDB</AssemblyName>
-    <Version>0.9.0</Version>
+    <Version>0.9.0-beta</Version>
     <Authors>William Tulloch</Authors>
     <Description>A Blazor library for interacting with IndexedDB</Description>
     <RepositoryUrl>https://github.com/wtulloch/Blazor.IndexedDB/</RepositoryUrl>
-    <RepositoryType>github</RepositoryType>
+    <RepositoryType>git</RepositoryType>
     <PackageTags>Blazor IndexDB</PackageTags>
+    <Copyright>(c) William Tulloch</Copyright>
+    <licenseUrl>https://github.com/wtulloch/Blazor.IndexedDB/#License</licenseUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +22,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Blazor.IndexedDB.JS\Blazor.IndexedDB.JS.csproj" />
+    <ProjectReference Include="..\Blazor.IndexedDB.JS\Blazor.IndexedDB.JS.csproj" privateAssets="all">
+    </ProjectReference>
+  
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>
