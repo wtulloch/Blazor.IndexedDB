@@ -1,5 +1,5 @@
 # Tg.Blazor.IndexedDB
-This is Blazor library for accessing IndexedDB and uses Jake Archibald's [idb library](https://github.com/jakearchibald/idb) for handling access to IndexedDB on the JavaScript side. 
+This is a Blazor library for accessing IndexedDB and uses Jake Archibald's [idb library](https://github.com/jakearchibald/idb) for handling access to IndexedDB on the JavaScript side. 
 
 This version currently provides the following functionality:
 
@@ -13,9 +13,10 @@ It does not, at the moment, support aggregate keys, searches using a range and s
 
 ## Using the library
 
-1. create a new instance of DbStore
-2. add one or more store definitions
-3. Inject the created instance of IndexedDbManger into the component or page where you want to use it
+1. Install the Nuget package TG.Blazor.IndexedDB (```Install-Package TG.Blazor.IndexedDB -Version 0.9.0-beta``)
+2. create a new instance of DbStore
+3. add one or more store definitions
+4. Inject the created instance of IndexedDbManger into the component or page where you want to use it
 
 The library provides a service extension to create a singleton instance of the DbStore.
 
