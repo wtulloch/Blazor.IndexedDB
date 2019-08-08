@@ -15,7 +15,10 @@ export class IndexedDbManager {
         const dbStore = data;
         //just a test for the moment
         instanceWrapper.instance.invokeMethod(instanceWrapper.methodName, "Hello from the other side");
-       
+
+        if (this.dbInstance) {
+            await this.dbInstance.close();
+        }
             this.dbInstance =  await idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
                 this.upgradeDatabase(upgradeDB, dbStore);
             });
@@ -154,20 +157,24 @@ export class IndexedDbManager {
             if (dbStore.stores) {
                 for (var store of dbStore.stores) {
                     if (!upgradeDB.objectStoreNames.contains(store.name)) {
-                        let primaryKey = store.primaryKey;
-
-                        if (!primaryKey) {
-                            primaryKey = { name: 'id', keyPath: 'id', auto: true };
-                        }
-
-                        const newStore = upgradeDB.createObjectStore(store.name, { keyPath: primaryKey.name, autoIncrement: primaryKey.auto });
-
-                        for (var index of store.indexes) {
-                            newStore.createIndex(index.name, index.keyPath, { unique: index.unique});
-                        }
+                        this.addNewStore(upgradeDB, store);
                     }
                 }
             }
+        }
+    }
+
+    private addNewStore(upgradeDB: UpgradeDB, store: IStoreSchema) {
+        let primaryKey = store.primaryKey;
+
+        if (!primaryKey) {
+            primaryKey = { name: 'id', keyPath: 'id', auto: true };
+        }
+
+        const newStore = upgradeDB.createObjectStore(store.name, { keyPath: primaryKey.name, autoIncrement: primaryKey.auto });
+
+        for (var index of store.indexes) {
+            newStore.createIndex(index.name, index.keyPath, { unique: index.unique });
         }
     }
 }

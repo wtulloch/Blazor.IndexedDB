@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 
@@ -58,6 +59,30 @@ namespace TG.Blazor.IndexedDB
             RaiseNotification(IndexDBActionOutCome.Successful, result);
         }
         
+        public async Task AddNewStore(StoreSchema storeSchema)
+        {
+            if (storeSchema == null)
+            {
+                return;
+            }
+
+            if (_dbStore.Stores.Any(s => s.Name == storeSchema.Name))
+            {
+                return;
+            }
+
+            _dbStore.Stores.Add(storeSchema);
+            _dbStore.Version += 1;
+
+            var result = await CallJavascript<string>(DbFunctions.OpenDb, _dbStore, new { Instance = DotNetObjectRef.Create(this), MethodName = "Callback" });
+            _isOpen = true;
+
+            RaiseNotification(IndexDBActionOutCome.Successful, $"new store {storeSchema.Name} added");
+
+
+
+        }
+
         /// <summary>
         /// Adds a new record/object to the specified store
         /// </summary>
