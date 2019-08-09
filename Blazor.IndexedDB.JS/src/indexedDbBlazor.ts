@@ -8,13 +8,16 @@ import { IDbStore, IIndexSearch, IIndexSpec, IStoreRecord, IStoreSchema, IDotNet
 export class IndexedDbManager {
 
     private dbInstance:any = null;
+    private dotnetCallback = (message: string) => { };
 
     constructor() { }
 
     public openDb = async (data: IDbStore, instanceWrapper: IDotNetInstanceWrapper): Promise<string> => {
         const dbStore = data;
         //just a test for the moment
-        instanceWrapper.instance.invokeMethod(instanceWrapper.methodName, "Hello from the other side");
+        this.dotnetCallback = (message: string) => {
+            instanceWrapper.instance.invokeMethod(instanceWrapper.methodName, message);
+        }
 
         if (this.dbInstance) {
             await this.dbInstance.close();
@@ -158,6 +161,7 @@ export class IndexedDbManager {
                 for (var store of dbStore.stores) {
                     if (!upgradeDB.objectStoreNames.contains(store.name)) {
                         this.addNewStore(upgradeDB, store);
+                        this.dotnetCallback(`store added ${store.name}: db version: ${dbStore.version}`);
                     }
                 }
             }
