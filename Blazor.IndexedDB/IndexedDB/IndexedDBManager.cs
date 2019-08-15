@@ -28,6 +28,9 @@ namespace TG.Blazor.IndexedDB
         }
 
         public List<StoreSchema> Stores => _dbStore.Stores;
+        public int CurrentVersion => _dbStore.Version;
+        public string DbName => _dbStore.DbName;
+        
 
 
         /// <summary>
@@ -39,6 +42,9 @@ namespace TG.Blazor.IndexedDB
         {
             var result = await CallJavascript<string>(DbFunctions.OpenDb, _dbStore, new { Instance = DotNetObjectRef.Create(this), MethodName= "Callback"});
             _isOpen = true;
+
+
+           await GetCurrentDbState();
 
             RaiseNotification(IndexDBActionOutCome.Successful, result);
         }
@@ -58,7 +64,36 @@ namespace TG.Blazor.IndexedDB
 
             RaiseNotification(IndexDBActionOutCome.Successful, result);
         }
-        
+
+        public async Task GetCurrentDbState()
+        {
+            await EnsureDbOpen();
+
+            var result = await CallJavascript<DbInformation>(DbFunctions.GetDbInfo, _dbStore.DbName);
+            Console.WriteLine($"from getCurrentDbState, version: {result.Version}");
+
+            if (result.Version > _dbStore.Version)
+            {
+                _dbStore.Version = result.Version;
+
+                var currentStores = _dbStore.Stores.Select(s => s.Name);
+
+                foreach (var storeName in result.StoreNames)
+                {
+                    if (!currentStores.Contains(storeName))
+                    {
+                        _dbStore.Stores.Add(new StoreSchema { DbVersion = result.Version, Name = storeName });
+
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// This function provides the means to add a store to an existing database,
+        /// </summary>
+        /// <param name="storeSchema"></param>
+        /// <returns></returns>
         public async Task AddNewStore(StoreSchema storeSchema)
         {
             if (storeSchema == null)
@@ -78,9 +113,6 @@ namespace TG.Blazor.IndexedDB
             _isOpen = true;
 
             RaiseNotification(IndexDBActionOutCome.Successful, $"new store {storeSchema.Name} added");
-
-
-
         }
 
         /// <summary>

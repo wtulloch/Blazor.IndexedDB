@@ -44,5 +44,10 @@ export interface IDotNetInstanceWrapper {
     methodName: string;
 }
 
+export interface IDbInformation {
+    version: number;
+    storeNames: string[];
+}
+
 
 

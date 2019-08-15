@@ -3,20 +3,27 @@
 @using TG.Blazor.IndexedDB
 @using Microsoft.AspNetCore.Components
 @using Microsoft.JSInterop
+@using System.Text;
 @implements IDisposable
 @inject IndexedDBManager DbManager
 @inject DbStore DbStore
 
-<div>
-    <p><b>status:</b> @Message</p>
-</div>
+    <div>
+        <p><b>status:</b> @Message</p>
+        <p><b>Db version:</b> @DbManager.CurrentVersion</p>
+        <p><b>stores:</b> @string.Join(", ", DbManager.Stores.Select(s => s.Name))</p>
+    </div>
 <div class="d-flex flex-row align-items-start">
     <div class="d-flex flex-column">
         <button class="btn btn-outline-primary m-4" @onclick="@OpenDatabase">Open Database</button>
         <button class="btn btn-outline-primary m-4" @onclick="@GetRecords">Get Records</button>
         <button class="btn btn-outline-primary m-4" @onclick="@ClearStore">Clear Store</button>
         <button class="btn btn-outline-primary m-4" @onclick="@DeleteDatabase">Delete Database</button>
-        <button class="btn btn-outline-primary m-4" @onclick="@AddNewStore">Add New Store</button>
+        <div class="m-4 d-flex flex-row" >
+            <button class="btn btn-outline-primary mr-2" @onclick="@AddNewStore">Add New Store</button>
+            <input type="text" placeholder="Enter new store name" @bind="@NewStoreName" />
+        </div>
+      
     </div>
 
     <div class="d-flex, flex-column">
@@ -27,6 +34,7 @@
             <div class="m-4">
                 <label>Last Name</label> <input id="lastName" type="text" @bind="@CurrentPerson.LastName" />
             </div>
+           
             <button class="btn btn-primary m-4" @onclick="@AddRecord">Add/Update Record</button>
         </div>
     </div>
@@ -59,6 +67,9 @@ Person CurrentPerson { get; set; } = new Person();
 
 List<Person> People { get; set; } = new List<Person>();
 
+string NewStoreName { get; set; } = "";
+
+
 protected override void OnInit()
 {
     DbManager.ActionCompleted += OnIndexedDbNotification;
@@ -73,8 +84,11 @@ public void Dispose()
 protected async void OpenDatabase()
 {
     await DbManager.OpenDb();
+    await DbManager.GetCurrentDbState();
     StateHasChanged();
 }
+
+
 
 protected List<string> GetIndexes()
 {
@@ -144,11 +158,12 @@ protected async Task AddNewStore()
 {
     var newStoreSchema = new StoreSchema
     {
-        Name = "TestStore",
-         PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = true },
+        Name = NewStoreName,
+        PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = true },
     };
 
     await DbManager.AddNewStore(newStoreSchema);
+    await DbManager.GetCurrentDbState();
 }
 
 protected async Task ClearStore()

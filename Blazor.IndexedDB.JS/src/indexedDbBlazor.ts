@@ -1,13 +1,13 @@
 ﻿///// <reference path="Microsoft.JSInterop.d.ts"/>
 import idb from 'idb';
 import { DB, UpgradeDB, ObjectStore, Transaction } from 'idb';
-import { IDbStore, IIndexSearch, IIndexSpec, IStoreRecord, IStoreSchema, IDotNetInstanceWrapper } from './interopInterfaces';
+import { IDbStore, IIndexSearch, IIndexSpec, IStoreRecord, IStoreSchema, IDotNetInstanceWrapper, IDbInformation } from './interopInterfaces';
 
 
 
 export class IndexedDbManager {
 
-    private dbInstance:any = null;
+    private dbInstance:any = undefined;
     private dotnetCallback = (message: string) => { };
 
     constructor() { }
@@ -19,19 +19,50 @@ export class IndexedDbManager {
             instanceWrapper.instance.invokeMethod(instanceWrapper.methodName, message);
         }
 
-        if (this.dbInstance) {
-            await this.dbInstance.close();
+        try {
+            if (!this.dbInstance || this.dbInstance.version < dbStore.version) {
+                if (this.dbInstance) {
+                    this.dbInstance.close();
+                }
+                this.dbInstance = await idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
+                    this.upgradeDatabase(upgradeDB, dbStore);
+                });
+            }
+        } catch (e) {
+            this.dbInstance = await idb.open(dbStore.dbName);
         }
-            this.dbInstance =  await idb.open(dbStore.dbName, dbStore.version, upgradeDB => {
-                this.upgradeDatabase(upgradeDB, dbStore);
-            });
+        
         return `IndexedDB ${data.dbName} opened`;
+    }
+
+    public getDbInfo = async (dbName: string) : Promise<IDbInformation> => {
+        if (!this.dbInstance) {
+            this.dbInstance = await idb.open(dbName);
+        }
+
+        const currentDb = <DB>this.dbInstance;
+
+        let getStoreNames = (list: DOMStringList): string[] => {
+            let names: string[] = [];
+            for (var i = 0; i < list.length; i++) {
+                names.push(list[i]);
+            }
+            return names;
+        }
+        const dbInfo: IDbInformation = {
+            version: currentDb.version,
+            storeNames: getStoreNames(currentDb.objectStoreNames)
+        };
+
+        return dbInfo;
     }
 
     public deleteDb = async(dbName: string): Promise<string> => {
         this.dbInstance.close();
 
         await idb.delete(dbName);
+
+        this.dbInstance = undefined;
 
         return `The database ${dbName} has been deleted`;
 }

@@ -12,7 +12,7 @@ namespace Blazor.IndexedDB.Test
             services.AddIndexedDB(dbStore =>
             {
                 dbStore.DbName = "TheFactory";
-                dbStore.Version = 2;
+                dbStore.Version = 1;
 
                 dbStore.Stores.Add(new StoreSchema
                 {

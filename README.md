@@ -186,6 +186,8 @@ If you are so inclined you can delete an entire database with the following func
 
 ## Change Logs
 
+### 2019-08-15
+
 ### 2019-06-25
 
 * Upgraded to Blazor 3.0.0 preview 6.
