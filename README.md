@@ -5,15 +5,33 @@ This version currently provides the following functionality:
 
 * Open and upgrade an instance of IndexedDB, creating stores
 * Add and update a record to/in a given store
-* Delete a record from a store 
+* Delete a record from a store
 * Retrieve all records from a given store
 * Retrieve a record/or records from a store by index and value if the index exists
+* Add a new store dynamically
 
 It does not, at the moment, support aggregate keys, searches using a range and some of the more obscure features of IndexedDB.
 
+## Change Logs
+
+### 2019-08-15
+ 
+ * Updated to Blazor 3.0.0 preview 7.
+ * Added means to add a new store dynamically.
+ * Added function to get current version and store names of the underlying IndexedDB.
+ * Minor changes. 
+
+### 2019-06-25
+
+* Upgraded to Blazor 3.0.0 preview 6.
+
+### 2019-04-21
+
+* Upgraded to Blazor 0.9.0-preview3-19154-02 (thanks Behnam Emamian).
+
 ## Using the library
 
-1. Install the Nuget package TG.Blazor.IndexedDB (```Install-Package TG.Blazor.IndexedDB -Version 0.9.0-beta``)
+1. Install the Nuget package TG.Blazor.IndexedDB (```Install-Package TG.Blazor.IndexedDB -Version 1.0.0-preview``)
 2. create a new instance of DbStore
 3. add one or more store definitions
 4. Inject the created instance of IndexedDbManger into the component or page where you want to use it
@@ -182,17 +200,21 @@ To delete a record call ```IndexedDbManager.DeleteRecord<TInput>(string storeNam
 To clear all the records in a store call the following function ```IndexedDbManager.ClearStore(string storeName)```.
 
 ### Deleting a Database
+
 If you are so inclined you can delete an entire database with the following function ```IndexedDbManager.DeleteDb(string dbName)```.
 
-## Change Logs
+### Adding a new store dynamically
 
-### 2019-08-15
+If you have occasion to what to add a store when the program is up and running. The following
 
-### 2019-06-25
+```CSharp
+var newStoreSchema = new StoreSchema
+    {
+        Name = NewStoreName,
+        PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = true },
+    };
 
-* Upgraded to Blazor 3.0.0 preview 6.
+    await DbManager.AddNewStore(newStoreSchema);
+```
 
-### 2019-04-21
-
-* Upgraded to Blazor 0.9.0-preview3-19154-02 (thanks Behnam Emamian).
-
+What this will do is, if the store doesn't already exist, is increment the database version number and add the store to the database.

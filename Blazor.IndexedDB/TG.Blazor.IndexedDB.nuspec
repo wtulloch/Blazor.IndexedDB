@@ -2,14 +2,14 @@
 <package >
   <metadata>
     <id>TG.Blazor.IndexedDB</id>
-    <version>0.9.0-beta</version>
+    <version>1.0.0-preview</version>
     <authors>William Tulloch</authors>
     <owners>William Tulloch</owners>
     <license type="expression">MIT</license>
     <repository type="Git" url="https://github.com/wtulloch/Blazor.IndexedDB" />
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A Blazor library for interacting with IndexedDB</description>
-    <releaseNotes>Updated to Blazor 3.0.0-preview6</releaseNotes>
+    <releaseNotes>Updated to Blazor 3.0.0-preview7 added additional functionality</releaseNotes>
     <copyright>Copyright 2019 William Tulloch</copyright>
     <tags>Microsoft ASP.NET Core Blazor  IndexedDB</tags>
     <dependencies>

@@ -70,7 +70,6 @@ namespace TG.Blazor.IndexedDB
             await EnsureDbOpen();
 
             var result = await CallJavascript<DbInformation>(DbFunctions.GetDbInfo, _dbStore.DbName);
-            Console.WriteLine($"from getCurrentDbState, version: {result.Version}");
 
             if (result.Version > _dbStore.Version)
             {
