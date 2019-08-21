@@ -14,6 +14,10 @@ It does not, at the moment, support aggregate keys, searches using a range and s
 
 ## Change Logs
 
+### 2019-08-21
+
+* Updated to Blazor 3.0.0 preview 8 
+
 ### 2019-08-15
  
  * Updated to Blazor 3.0.0 preview 7.
