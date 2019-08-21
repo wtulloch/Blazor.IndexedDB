@@ -70,7 +70,7 @@ List<Person> People { get; set; } = new List<Person>();
 string NewStoreName { get; set; } = "";
 
 
-protected override void OnInit()
+protected override void OnInitialized()
 {
     DbManager.ActionCompleted += OnIndexedDbNotification;
 
