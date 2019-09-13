@@ -2,20 +2,20 @@
 <package >
   <metadata>
     <id>TG.Blazor.IndexedDB</id>
-    <version>1.1.0-preview</version>
+    <version>1.2.0-preview</version>
     <authors>William Tulloch</authors>
     <owners>William Tulloch</owners>
     <license type="expression">MIT</license>
     <repository type="Git" url="https://github.com/wtulloch/Blazor.IndexedDB" />
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A Blazor library for interacting with IndexedDB</description>
-    <releaseNotes>Updated to Blazor 3.0.0-preview 8 </releaseNotes>
+    <releaseNotes>Updated to Blazor 3.0.0-preview 9 </releaseNotes>
     <copyright>Copyright 2019 William Tulloch</copyright>
     <tags>Microsoft ASP.NET Core Blazor  IndexedDB</tags>
     <dependencies>
       <group targetFramework=".NetStandard2.0">
-        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="3.0.0-preview8.19405.4"  exclude="Build,Analyzers" />
-        <dependency id="Microsoft.JSInterop" version="3.0.0-preview8.19405.4"  exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="3.0.0-preview9.19423.4"  exclude="Build,Analyzers" />
+        <dependency id="Microsoft.JSInterop" version="3.0.0-preview9.19423.4"  exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
