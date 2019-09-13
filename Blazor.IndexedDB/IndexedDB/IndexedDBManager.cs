@@ -31,8 +31,6 @@ namespace TG.Blazor.IndexedDB
         public int CurrentVersion => _dbStore.Version;
         public string DbName => _dbStore.DbName;
         
-
-
         /// <summary>
         /// Opens the IndexedDB defined in the DbStore. Under the covers will create the database if it does not exist
         /// and create the stores defined in DbStore.
@@ -40,7 +38,7 @@ namespace TG.Blazor.IndexedDB
         /// <returns></returns>
         public async Task OpenDb()
         {
-            var result = await CallJavascript<string>(DbFunctions.OpenDb, _dbStore, new { Instance = DotNetObjectRef.Create(this), MethodName= "Callback"});
+            var result = await CallJavascript<string>(DbFunctions.OpenDb, _dbStore, new { Instance = DotNetObjectReference.Create(this), MethodName= "Callback"});
             _isOpen = true;
 
 
@@ -108,7 +106,7 @@ namespace TG.Blazor.IndexedDB
             _dbStore.Stores.Add(storeSchema);
             _dbStore.Version += 1;
 
-            var result = await CallJavascript<string>(DbFunctions.OpenDb, _dbStore, new { Instance = DotNetObjectRef.Create(this), MethodName = "Callback" });
+            var result = await CallJavascript<string>(DbFunctions.OpenDb, _dbStore, new { Instance = DotNetObjectReference.Create(this), MethodName = "Callback" });
             _isOpen = true;
 
             RaiseNotification(IndexDBActionOutCome.Successful, $"new store {storeSchema.Name} added");
@@ -204,6 +202,7 @@ namespace TG.Blazor.IndexedDB
                 return default;
             }
         }
+        
         /// <summary>
         /// Deletes a reocrd from the store based on the id
         /// </summary>
@@ -271,6 +270,7 @@ namespace TG.Blazor.IndexedDB
                 return default;
             }
         }
+        
         /// <summary>
         /// Gets all of the records that match a given query in the specified index.
         /// </summary>
@@ -300,6 +300,7 @@ namespace TG.Blazor.IndexedDB
         {
             Console.WriteLine($"called from JS: {message}");
         }
+        
         private async Task<TResult> CallJavascript<TData, TResult>(string functionName, TData data)
         {
             return await _jsRuntime.InvokeAsync<TResult>($"{InteropPrefix}.{functionName}", data);

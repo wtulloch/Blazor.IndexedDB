@@ -3,8 +3,6 @@ import idb from 'idb';
 import { DB, UpgradeDB, ObjectStore, Transaction } from 'idb';
 import { IDbStore, IIndexSearch, IIndexSpec, IStoreRecord, IStoreSchema, IDotNetInstanceWrapper, IDbInformation } from './interopInterfaces';
 
-
-
 export class IndexedDbManager {
 
     private dbInstance:any = undefined;
@@ -65,7 +63,7 @@ export class IndexedDbManager {
         this.dbInstance = undefined;
 
         return `The database ${dbName} has been deleted`;
-}
+    }
 
     public addRecord = async (record: IStoreRecord): Promise<string> => {
         const stName = record.storename;
