@@ -1,7 +1,7 @@
 ﻿///// <reference path="Microsoft.JSInterop.d.ts"/>
 import idb from 'idb';
 import { DB, UpgradeDB, ObjectStore, Transaction } from 'idb';
-import { IDbStore, IIndexSearch, IIndexSpec, IStoreRecord, IStoreSchema, IDotNetInstanceWrapper, IDbInformation } from './interopInterfaces';
+import { IDbStore, IIndexSearch, IIndexSpec, IStoreRecord, IStoreSchema, IDotNetInstanceWrapper, IDbInformation } from './InteropInterfaces';
 
 export class IndexedDbManager {
 

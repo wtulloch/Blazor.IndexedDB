@@ -7,7 +7,7 @@
     <RazorLangVersion>3.0</RazorLangVersion>
     <LangVersion>7.3</LangVersion>
     <AssemblyName>TG.Blazor.IndexedDB</AssemblyName>
-    <Version>0.9.0-beta</Version>
+    <Version>1.2.1-preview</Version>
     <Authors>William Tulloch</Authors>
     <Description>A Blazor library for interacting with IndexedDB</Description>
     <RepositoryUrl>https://github.com/wtulloch/Blazor.IndexedDB/</RepositoryUrl>
@@ -28,8 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.0-preview9.19423.4" />
-    <PackageReference Include="Microsoft.JSInterop" Version="3.0.0-preview9.19423.4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.0" />
+    <PackageReference Include="Microsoft.JSInterop" Version="3.0.0" />
   </ItemGroup>
 
 </Project>
