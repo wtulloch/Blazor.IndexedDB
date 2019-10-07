@@ -14,6 +14,10 @@ It does not, at the moment, support aggregate keys, searches using a range and s
 
 ## Change Logs
 
+## 2019-10-07
+
+* Updated to .NET Core 3.0 (thanks Tony Hild)
+
 ## 2019-09-13
 
 * updated to Blazor 3.0.0 preview 9 (thanks Edgars Šults)
