@@ -205,7 +205,7 @@ To update a record call ```IndexedDbManager.UpdateRecord<T>(StoreRecord<T> recor
 
 ### Deleting a record
 
-To delete a record call ```IndexedDbManager.DeleteRecord<TInput>(string storeName, TInput id)```.
+To delete a record call ```IndexedDbManager.DeleteRecord(string storeName, long? id)```.
 
 ### Clear all records from a store
 
