@@ -204,7 +204,7 @@ namespace TG.Blazor.IndexedDB
         }
         
         /// <summary>
-        /// Deletes a reocrd from the store based on the id
+        /// Deletes a record from the store based on the id
         /// </summary>
         /// <typeparam name="TInput"></typeparam>
         /// <param name="storeName"></param>
