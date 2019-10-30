@@ -204,7 +204,7 @@ export class IndexedDbManager {
             primaryKey = { name: 'id', keyPath: 'id', auto: true };
         }
 
-        const newStore = upgradeDB.createObjectStore(store.name, { keyPath: primaryKey.name, autoIncrement: primaryKey.auto });
+        const newStore = upgradeDB.createObjectStore(store.name, { keyPath: primaryKey.keyPath, autoIncrement: primaryKey.auto });
 
         for (var index of store.indexes) {
             newStore.createIndex(index.name, index.keyPath, { unique: index.unique });
