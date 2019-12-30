@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Blazor.IndexedDB.JS\Blazor.IndexedDB.JS.csproj" />
     <ProjectReference Include="..\Blazor.IndexedDB\TG.Blazor.IndexedDB.csproj" />
   </ItemGroup>
 

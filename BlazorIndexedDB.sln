@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.IndexedDB.Test", "Bl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TG.Blazor.IndexedDB", "Blazor.IndexedDB\TG.Blazor.IndexedDB.csproj", "{E583B20E-C255-4CCC-9B8C-4BD991BDF677}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.IndexedDB.JS", "Blazor.IndexedDB.JS\Blazor.IndexedDB.JS.csproj", "{77FA35AB-768B-4848-BC29-3315AE002F3B}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C0A285CB-8B91-4D58-AE08-0DA00E78ED8D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.IndexedDB.JS", "Blazor.IndexedDB.JS\Blazor.IndexedDB.JS.csproj", "{86FA8B20-BFF8-45FC-941E-1B8DCB3D65C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,17 +25,17 @@ Global
 		{E583B20E-C255-4CCC-9B8C-4BD991BDF677}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E583B20E-C255-4CCC-9B8C-4BD991BDF677}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E583B20E-C255-4CCC-9B8C-4BD991BDF677}.Release|Any CPU.Build.0 = Release|Any CPU
-		{77FA35AB-768B-4848-BC29-3315AE002F3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{77FA35AB-768B-4848-BC29-3315AE002F3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{77FA35AB-768B-4848-BC29-3315AE002F3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{77FA35AB-768B-4848-BC29-3315AE002F3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86FA8B20-BFF8-45FC-941E-1B8DCB3D65C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86FA8B20-BFF8-45FC-941E-1B8DCB3D65C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86FA8B20-BFF8-45FC-941E-1B8DCB3D65C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86FA8B20-BFF8-45FC-941E-1B8DCB3D65C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E583B20E-C255-4CCC-9B8C-4BD991BDF677} = {C0A285CB-8B91-4D58-AE08-0DA00E78ED8D}
-		{77FA35AB-768B-4848-BC29-3315AE002F3B} = {C0A285CB-8B91-4D58-AE08-0DA00E78ED8D}
+		{86FA8B20-BFF8-45FC-941E-1B8DCB3D65C8} = {C0A285CB-8B91-4D58-AE08-0DA00E78ED8D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0542D19B-0940-47F5-8E86-FA5189E9F7EE}

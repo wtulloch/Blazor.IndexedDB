@@ -18,18 +18,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Blazor.IndexedDB.JS\Blazor.IndexedDB.JS.csproj" privateAssets="all">
-    </ProjectReference>
-  
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.0" />
     <PackageReference Include="Microsoft.JSInterop" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Blazor.IndexedDB.JS\Blazor.IndexedDB.JS.csproj" />
   </ItemGroup>
 
 </Project>
