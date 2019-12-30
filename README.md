@@ -12,41 +12,15 @@ This version currently provides the following functionality:
 
 It does not, at the moment, support aggregate keys, searches using a range and some of the more obscure features of IndexedDB.
 
-## Change Logs
 
-### 2019-10-07
-
-* Updated to .NET Core 3.0 (thanks Tony Hild)
-
-### 2019-09-13
-
-* updated to Blazor 3.0.0 preview 9 (thanks Edgars Šults)
-
-### 2019-08-21
-
-* Updated to Blazor 3.0.0 preview 8 
-
-### 2019-08-15
- 
- * Updated to Blazor 3.0.0 preview 7.
- * Added means to add a new store dynamically.
- * Added function to get current version and store names of the underlying IndexedDB.
- * Minor changes. 
-
-### 2019-06-25
-
-* Upgraded to Blazor 3.0.0 preview 6.
-
-### 2019-04-21
-
-* Upgraded to Blazor 0.9.0-preview3-19154-02 (thanks Behnam Emamian).
 
 ## Using the library
 
-1. Install the Nuget package TG.Blazor.IndexedDB (```Install-Package TG.Blazor.IndexedDB -Version 1.0.0-preview``)
+1. Install the Nuget package TG.Blazor.IndexedDB (```Install-Package TG.Blazor.IndexedDB -Version 1.0.0-preview```)
 2. create a new instance of DbStore
 3. add one or more store definitions
-4. Inject the created instance of IndexedDbManger into the component or page where you want to use it
+4. Add the following script reference to your Index.html after the blazor.webassembly.js reference: ```<script src="_content/TG.Blazor.IndexedDB.JS/indexedDb.Blazor.js"></script>```
+5. Inject the created instance of IndexedDbManger into the component or page where you want to use it
 
 The library provides a service extension to create a singleton instance of the DbStore.
 
@@ -230,3 +204,40 @@ var newStoreSchema = new StoreSchema
 ```
 
 What this will do is, if the store doesn't already exist, is increment the database version number and add the store to the database.
+
+
+## Change Logs
+
+### 2019-12-30
+
+* Change when setting up primary index to use keyPath property rather than name (thanks Fabian Fleischer)
+
+
+### 2019-10-07
+
+* Updated to .NET Core 3.0 (thanks Tony Hild)
+
+### 2019-09-13
+
+* Updated to Blazor 3.0.0 preview 9 (thanks Edgars Šults)
+
+* Updated the JavaScript interop class to use new the approach for static content (thanks dieterdp);
+
+### 2019-08-21
+
+* Updated to Blazor 3.0.0 preview 8 
+
+### 2019-08-15
+ 
+ * Updated to Blazor 3.0.0 preview 7.
+ * Added means to add a new store dynamically.
+ * Added function to get current version and store names of the underlying IndexedDB.
+ * Minor changes. 
+
+### 2019-06-25
+
+* Upgraded to Blazor 3.0.0 preview 6.
+
+### 2019-04-21
+
+* Upgraded to Blazor 0.9.0-preview3-19154-02 (thanks Behnam Emamian).
