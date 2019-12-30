@@ -6,7 +6,7 @@
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <DefaultItemExcludes>${DefaultItemExcludes};dist\**;node_modules\**</DefaultItemExcludes>
-    <AssemblyName>TG.Blazor.IndexedDB.JS</AssemblyName>
+    <AssemblyName>TG.TestLibrary</AssemblyName>
   </PropertyGroup>
   
   <ItemGroup>
