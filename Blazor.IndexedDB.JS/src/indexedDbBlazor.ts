@@ -14,7 +14,7 @@ export class IndexedDbManager {
         const dbStore = data;
         //just a test for the moment
         this.dotnetCallback = (message: string) => {
-            instanceWrapper.instance.invokeMethod(instanceWrapper.methodName, message);
+            instanceWrapper.instance.invokeMethodAsync(instanceWrapper.methodName, message);
         }
 
         try {

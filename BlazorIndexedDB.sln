@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C0A285CB-8B9
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.IndexedDB.JS", "Blazor.IndexedDB.JS\Blazor.IndexedDB.JS.csproj", "{86FA8B20-BFF8-45FC-941E-1B8DCB3D65C8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blazor.IndexedDB.Server", "Blazor.IndexedDB.Server\Blazor.IndexedDB.Server.csproj", "{B9F734F7-4592-4535-99B8-E2C84C1154F1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{86FA8B20-BFF8-45FC-941E-1B8DCB3D65C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86FA8B20-BFF8-45FC-941E-1B8DCB3D65C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86FA8B20-BFF8-45FC-941E-1B8DCB3D65C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9F734F7-4592-4535-99B8-E2C84C1154F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9F734F7-4592-4535-99B8-E2C84C1154F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9F734F7-4592-4535-99B8-E2C84C1154F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9F734F7-4592-4535-99B8-E2C84C1154F1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

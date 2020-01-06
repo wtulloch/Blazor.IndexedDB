@@ -12,12 +12,13 @@ namespace TG.Blazor.IndexedDB
         /// <param name="services"></param>
         /// <param name="options">Action to set up the DbStore</param>
         /// <returns></returns>
-        public static IServiceCollection AddIndexedDB(this IServiceCollection services, Action<DbStore> options)
+        public static IServiceCollection AddIndexedDB(this IServiceCollection services, Action<DbStore> options, bool serverSide = false)
         {
             var dbStore = new DbStore();
             options(dbStore);
+
             services.TryAddSingleton(dbStore);
-            services.TryAddSingleton<IndexedDBManager , IndexedDBManager>();
+            services.AddScoped<IndexedDBManager , IndexedDBManager>();
 
             return services;
         }
