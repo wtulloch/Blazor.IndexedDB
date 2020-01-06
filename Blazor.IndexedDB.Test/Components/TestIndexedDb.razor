@@ -76,10 +76,10 @@ protected override void OnInitialized()
 
 }
 
-public void Dispose()
-{
-    DbManager.ActionCompleted -= OnIndexedDbNotification;
-}
+    public void Dispose()
+    {
+        DbManager.ActionCompleted -= OnIndexedDbNotification;
+    }
 
 protected async void OpenDatabase()
 {
