@@ -9,14 +9,14 @@ This version currently provides the following functionality:
 * Retrieve all records from a given store
 * Retrieve a record/or records from a store by index and value if the index exists
 * Add a new store dynamically
+* Works both with server-side Blazor and client-side Blazor
 
 It does not, at the moment, support aggregate keys, searches using a range and some of the more obscure features of IndexedDB.
 
 
-
 ## Using the library
 
-1. Install the Nuget package TG.Blazor.IndexedDB (```Install-Package TG.Blazor.IndexedDB -Version 1.0.0-preview```)
+1. Install the Nuget package TG.Blazor.IndexedDB (```Install-Package TG.Blazor.IndexedDB -Version 1.4.0-preview```)
 2. create a new instance of DbStore
 3. add one or more store definitions
 4. Add the following script reference to your Index.html after the blazor.webassembly.js reference: ```<script src="_content/TG.Blazor.IndexedDB.JS/indexedDb.Blazor.js"></script>```
