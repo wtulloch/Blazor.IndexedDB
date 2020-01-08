@@ -13,9 +13,7 @@ This version currently provides the following functionality:
 
 It does not, at the moment, support aggregate keys, searches using a range and some of the more obscure features of IndexedDB.
 
-
 ## Using the library
-
 1. Install the Nuget package TG.Blazor.IndexedDB (```Install-Package TG.Blazor.IndexedDB -Version 1.5.0-preview```)
 2. create a new instance of DbStore
 3. add one or more store definitions
@@ -92,7 +90,6 @@ To use IndexedDB in a component or page first inject the IndexedDbManager instan
 ```CSharp
 @inject IndexedDBManager DbManager
 ``` 
-
 ### Setting up notifications
 
 IndexedDBManager exposes ```ActionCompleted``` event that is raised when an action is completed. 
@@ -202,7 +199,4 @@ var newStoreSchema = new StoreSchema
 
     await DbManager.AddNewStore(newStoreSchema);
 ```
-
 What this will do is, if the store doesn't already exist, is increment the database version number and add the store to the database.
-
-
