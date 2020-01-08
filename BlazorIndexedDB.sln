@@ -5,11 +5,11 @@ VisualStudioVersion = 16.0.29006.145
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C0A285CB-8B91-4D58-AE08-0DA00E78ED8D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TG.Blazor.IndexedDB", "TG.Blazor.IndexedDb.New\TG.Blazor.IndexedDB.csproj", "{74AAC1FD-C21B-4075-AF02-63094468EF5F}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.IndexedDB.Server", "Blazor.IndexedDB.Server\Blazor.IndexedDB.Server.csproj", "{B9F442EE-BC4A-4837-A5C0-BA515CA97C6F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor.IndexedDB.Test", "Blazor.IndexedDB.Test\Blazor.IndexedDB.Test.csproj", "{F99B6C23-18BE-4EFE-85F4-B6B042852DFA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TG.Blazor.IndexedDB", "TG.Blazor.IndexedDb\TG.Blazor.IndexedDB.csproj", "{0980DB24-DF42-4931-A5F5-30AB9EE2838C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{74AAC1FD-C21B-4075-AF02-63094468EF5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{74AAC1FD-C21B-4075-AF02-63094468EF5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{74AAC1FD-C21B-4075-AF02-63094468EF5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{74AAC1FD-C21B-4075-AF02-63094468EF5F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B9F442EE-BC4A-4837-A5C0-BA515CA97C6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B9F442EE-BC4A-4837-A5C0-BA515CA97C6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9F442EE-BC4A-4837-A5C0-BA515CA97C6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -29,14 +25,16 @@ Global
 		{F99B6C23-18BE-4EFE-85F4-B6B042852DFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F99B6C23-18BE-4EFE-85F4-B6B042852DFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F99B6C23-18BE-4EFE-85F4-B6B042852DFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0980DB24-DF42-4931-A5F5-30AB9EE2838C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0980DB24-DF42-4931-A5F5-30AB9EE2838C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0980DB24-DF42-4931-A5F5-30AB9EE2838C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0980DB24-DF42-4931-A5F5-30AB9EE2838C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{74AAC1FD-C21B-4075-AF02-63094468EF5F} = {C0A285CB-8B91-4D58-AE08-0DA00E78ED8D}
-		{B9F442EE-BC4A-4837-A5C0-BA515CA97C6F} = {C0A285CB-8B91-4D58-AE08-0DA00E78ED8D}
-		{F99B6C23-18BE-4EFE-85F4-B6B042852DFA} = {C0A285CB-8B91-4D58-AE08-0DA00E78ED8D}
+		{0980DB24-DF42-4931-A5F5-30AB9EE2838C} = {C0A285CB-8B91-4D58-AE08-0DA00E78ED8D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0542D19B-0940-47F5-8E86-FA5189E9F7EE}
