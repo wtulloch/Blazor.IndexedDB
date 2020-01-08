@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -6,20 +6,28 @@
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <DefaultItemExcludes>${DefaultItemExcludes};dist\**;node_modules\**</DefaultItemExcludes>
-    <AssemblyName>TG.Blazor.IndexedDB.JS</AssemblyName>
+    <AssemblyName>TG.Blazor.IndexedDB</AssemblyName>
+    <RootNamespace>TG.Blazor.IndexedDB</RootNamespace>
   </PropertyGroup>
-  
+
   <ItemGroup>
-  <WebpackInputs Include="**\*.ts" Exclude="wwwroot\**;node_modules\**; **\*.d.ts" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Remove="package-lock.json" />
     <Content Remove="package.json" />
     <Content Remove="tsconfig.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="package-lock.json" />
+    <WebpackInputs Include="**\*.ts" Exclude="wwwroot\**;node_modules\**; **\*.d.ts" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="IndexedDB\" />
+    <Folder Include="client\" />
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
     <None Include="package.json" />
     <None Include="tsconfig.json" />
   </ItemGroup>
@@ -28,13 +36,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.0" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Content Update="wwwroot\indexedDb.Blazor.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <Target Name="EnsureNpmRestored" Condition="!Exists('node_modules')">
@@ -49,5 +50,7 @@
       <Content Include="wwwroot\**\*.js" />
     </ItemGroup>
   </Target>
+
+ 
 
 </Project>
