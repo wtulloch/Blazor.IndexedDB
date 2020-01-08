@@ -16,10 +16,10 @@ It does not, at the moment, support aggregate keys, searches using a range and s
 
 ## Using the library
 
-1. Install the Nuget package TG.Blazor.IndexedDB (```Install-Package TG.Blazor.IndexedDB -Version 1.4.0-preview```)
+1. Install the Nuget package TG.Blazor.IndexedDB (```Install-Package TG.Blazor.IndexedDB -Version 1.5.0-preview```)
 2. create a new instance of DbStore
 3. add one or more store definitions
-4. Add the following script reference to your Index.html after the blazor.webassembly.js reference: ```<script src="_content/TG.Blazor.IndexedDB.JS/indexedDb.Blazor.js"></script>```
+4. Add the following script reference to your Index.html after the blazor.webassembly.js reference: ```<script src="_content/TG.Blazor.IndexedDB/indexedDb.Blazor.js"></script>```
 5. Inject the created instance of IndexedDbManger into the component or page where you want to use it
 
 The library provides a service extension to create a singleton instance of the DbStore.
@@ -208,6 +208,11 @@ What this will do is, if the store doesn't already exist, is increment the datab
 
 ## Change Logs
 
+### 2020-01-08
+
+* Major refactor to properly support inclusion of the Javascript file from the library as a static asset. Rewrote as a Razor library and consolidated the Javascript project into the main library project.
+* Now supports both client and server-side Blazor projects.
+
 ### 2019-12-30
 
 * Change when setting up primary index to use keyPath property rather than name (thanks Fabian Fleischer)
@@ -221,7 +226,7 @@ What this will do is, if the store doesn't already exist, is increment the datab
 
 * Updated to Blazor 3.0.0 preview 9 (thanks Edgars Šults)
 
-* Updated the JavaScript interop class to use new the approach for static content (thanks dieterdp);
+* Updated the JavaScript interop class to use new the approach for static content (thanks dieterdp)
 
 ### 2019-08-21
 
