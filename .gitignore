@@ -262,3 +262,6 @@ __pycache__/
 
 #compiled JS
 [Dd]ist/
+
+#compiled IndexedDB.Blazor JS file
+**/wwwroot/indexedDb.Blazor.js
