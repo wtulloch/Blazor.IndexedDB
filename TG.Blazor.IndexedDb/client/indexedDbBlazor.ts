@@ -160,7 +160,12 @@ export class IndexedDbManager {
         const tx = dbInstance.transaction(stName, mode);
         tx.complete.catch(
             err => {
-                console.log((err as Error).message);
+                if (err) {
+                    console.error((err as Error).message);
+                } else {
+                    console.error('Undefined error in getTransaction()');
+                }
+                
             });
 
         return tx;
