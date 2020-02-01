@@ -21,7 +21,6 @@
   <ItemGroup>
     <Content Remove="package.json" />
     <Content Remove="tsconfig.json" />
-    <Content Remove="wwwroot\indexedDb.Blazor.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,7 +31,6 @@
   <ItemGroup>
     <Folder Include="IndexedDB\" />
     <Folder Include="client\" />
-    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 
