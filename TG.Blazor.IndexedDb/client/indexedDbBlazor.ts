@@ -96,6 +96,41 @@ export class IndexedDbManager {
 
         return results;
     }
+    
+    public getRecordsCount = async (storeName: string): Promise<number> => {
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+        const count: number = await tx.objectStore(storeName).count();
+        await tx.complete;
+        return count;
+    }
+    
+    public getRecordsOffset = async (storeName: string, limit: bigint, offset: bigint): Promise<any> => {
+        const tx = this.getTransaction(this.dbInstance, storeName, 'readonly');
+        let i = 0;
+        let results: any[] = [];
+
+        tx.objectStore(storeName)
+            .iterateCursor(cursor => {
+                if (!cursor) {
+                    return;
+                }
+
+                if (i < offset) {
+                    i += 1;
+                    cursor.continue();
+                    return;
+                }
+                else if (results.length < limit) {
+                    results.push(cursor.value);
+                }
+
+                cursor.continue();
+            });
+
+        await tx.complete;
+
+        return results;
+    }
 
     public clearStore = async (storeName: string): Promise<string> => {
         

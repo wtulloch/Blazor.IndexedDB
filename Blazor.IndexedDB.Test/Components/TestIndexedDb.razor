@@ -11,12 +11,14 @@
     <div>
         <p><b>status:</b> @Message</p>
         <p><b>Db version:</b> @DbManager.CurrentVersion</p>
-        <p><b>stores:</b> @string.Join(", ", DbManager.Stores.Select(s => s.Name))</p>
+        <p><b>stores:</b> @StoreCounts</p>
     </div>
 <div class="d-flex flex-row align-items-start">
     <div class="d-flex flex-column">
         <button class="btn btn-outline-primary m-4" @onclick="OpenDatabase">Open Database</button>
         <button class="btn btn-outline-primary m-4" @onclick="GetRecords">Get Records</button>
+        <button class="btn btn-outline-primary m-4" @onclick="GetRecordsPaginated">Get Records Paginated</button>
+        <button class="btn btn-outline-primary m-4" @onclick="UpdateStoreRecordCounts">Update Store Record Counts</button>
         <button class="btn btn-outline-primary m-4" @onclick="ClearStore">Clear Store</button>
         <button class="btn btn-outline-primary m-4" @onclick="DeleteDatabase">Delete Database</button>
         <button class="btn btn-outline-danger m-4" @onclick="Add130Records">Pre-populate Store</button>
@@ -70,11 +72,13 @@
 
     string NewStoreName { get; set; } = "";
 
+    string StoreCounts { get; set; } = "";
+
 
     protected override void OnInitialized()
     {
         DbManager.ActionCompleted += OnIndexedDbNotification;
-
+        StoreCounts = string.Join(", ", DbManager.Stores.Select(s => s.Name + ": 0"));
     }
 
     public void Dispose()
@@ -110,6 +114,48 @@
         }
 
         StateHasChanged();
+    }
+    
+    protected async void GetRecordsPaginated()
+    {
+        const uint pageSize = 15;
+        var results = new List<Person>();
+        var personCount = (ulong) await DbManager.GetRecordsCount(DbManager.Stores[0].Name);
+        for (var i = 0u; i < personCount; i += pageSize)
+        {
+            results.AddRange(await DbManager.GetRecords<Person>(DbManager.Stores[0].Name, pageSize, i));
+        }
+
+        if (results.Any())
+        {
+            People = results;
+        }
+        else
+        {
+            People.Clear();
+            Message = "No Records found";
+        }
+
+        StateHasChanged();
+    }
+
+    protected async Task UpdateStoreRecordCounts()
+    {
+        var first = true;
+        var sb = new StringBuilder();
+
+        foreach (var store in DbManager.Stores)
+        {
+            if (!first)
+                sb.Append(", ");
+
+            first = false;
+            sb.Append(store.Name);
+            sb.Append(": ");
+            sb.Append(await DbManager.GetRecordsCount(store.Name));
+        }
+
+        StoreCounts = sb.ToString();
     }
 
     protected async void Add130Records()

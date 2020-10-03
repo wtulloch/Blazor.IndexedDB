@@ -176,6 +176,57 @@ namespace TG.Blazor.IndexedDB
             }
            
         }
+        
+        /// <summary>
+        /// Gets all of the records in a given store, up to a limit, with an offset.
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="storeName">The name of the store from which to retrieve the records</param>
+        /// <param name="limit">Maximum number of records to return (Max 2^32-1, aka UInt32.MaxValue)</param>
+        /// <param name="offset">Offset from start into records results by offset count</param>
+        /// <returns></returns>
+        public async Task<List<TResult>> GetRecords<TResult>(string storeName, uint limit, uint offset = 0)
+        {
+            await EnsureDbOpen();
+            try
+            {
+                var results = await CallJavascript<List<TResult>>(DbFunctions.GetRecordsOffset, storeName, limit, offset);
+
+                RaiseNotification(IndexDBActionOutCome.Successful, $"Retrieved {results.Count} records from {storeName}");
+
+                return results;
+            }
+            catch (JSException jse)
+            {
+                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                return default;
+            }
+           
+        }
+        
+        /// <summary>
+        /// Gets count all of the records in a given store.
+        /// </summary>
+        /// <param name="storeName">The name of the store from which records will be counted.</param>
+        /// <returns></returns>
+        public async Task<double> GetRecordsCount(string storeName)
+        {
+            await EnsureDbOpen();
+            try
+            {
+                var results = await CallJavascript<double>(DbFunctions.GetRecordsCount, storeName);
+
+                RaiseNotification(IndexDBActionOutCome.Successful, $"Retrieved count of {results} records from {storeName}");
+
+                return results;
+            }
+            catch (JSException jse)
+            {
+                RaiseNotification(IndexDBActionOutCome.Failed, jse.Message);
+                return default;
+            }
+           
+        }
 
         /// <summary>
         /// Retrieve a record by id
