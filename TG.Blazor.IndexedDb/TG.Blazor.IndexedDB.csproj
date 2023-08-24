@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
@@ -16,6 +16,8 @@
     <Description>A Blazor library for interacting with IndexedDB</Description>
     <Copyright>Copyright 2019 William Tulloch</Copyright>
     <PackageReleaseNotes>Updated to work with both server and client-side Blazor</PackageReleaseNotes>
+
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,6 +33,7 @@
   <ItemGroup>
     <Folder Include="IndexedDB\" />
     <Folder Include="client\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 
