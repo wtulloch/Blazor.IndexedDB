@@ -1,0 +1,129 @@
+﻿@using Blazor.IndexedDB.Test.Models
+@using TG.Blazor.IndexedDB
+@implements IDisposable
+@inject IndexedDBManager DbManager
+<div>
+<p>To query by index select index and enter a value. This will return the first record that matches the value. <br />
+   To get all the records that match a given value, check the "Return all matches" checkbox. <br />
+    <em>Note:</em> IndexedDB does not support partial matches or wildcards.
+</p>
+</div>
+<div>
+    <p><b>status:</b> @Message</p>
+</div>
+<div class="d-flex flex-row align-items-start">
+    <div class="d-flex flex-column">
+        <div class="form-group">
+            <label for="selectIndex">Select Index</label>
+            <select class="form-control" id="selectIndex" @bind="SelectedIndex">
+                <option value="default" selected></option>
+                @foreach (var index in Indexes)
+                {
+                    <option value="@index">@index</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="searchValue">Search for</label>
+            <input id="searchValue" class="form-control" type="text" @bind="@SearchString" />
+        </div>
+        <div class="form-group">
+
+            <input id="selectAll" type="checkbox" class="form-check-input" @bind="@GetAll" />
+            <label for="selectAll">Return all matches</label>
+        </div>
+        <button class="btn btn-outline-primary" @onclick="SearchForRecords">Search</button>
+    </div>
+     <div class="d-flex flex-row flex-wrap mt-4 ml-4">
+
+        @foreach (var person in People)
+        {
+
+            <div class="card" style="margin-bottom:10px; margin-right: 10px; padding:5px; width:200px">
+                 <p>Id: @person.Id</p>
+                <p>First Name: @person.FirstName</p>
+                <p>Last Name: @person.LastName</p>
+                
+            </div>
+
+        }
+
+    </div>
+</div>
+
+@code{
+
+    protected string Message { get; set; }
+
+    protected List<string> Indexes { get; set; }
+
+    protected string SelectedIndex { get; set; }
+
+    protected string SearchString { get; set; }
+
+    protected bool GetAll { get; set; }
+
+    protected List<Person> People { get; set; } = new List<Person>();
+
+
+    protected override void OnInitialized()
+    {
+        DbManager.ActionCompleted += OnIndexedDbNotification;
+
+        Indexes = DbManager.Stores[0].Indexes.Select(id => id.Name).ToList();
+
+
+    }
+
+    public void Dispose()
+    {
+        DbManager.ActionCompleted -= OnIndexedDbNotification;
+    }
+
+    protected async Task SearchForRecords()
+    {
+
+        if (string.IsNullOrEmpty(SelectedIndex))
+        {
+            return;
+        }
+
+        People.Clear();
+
+        var indexSearch = new StoreIndexQuery<string>
+        {
+            Storename = DbManager.Stores[0].Name,
+            IndexName = SelectedIndex,
+            QueryValue = SearchString,
+        };
+
+        if (GetAll)
+        {
+            var result = await DbManager.GetAllRecordsByIndex<string, Person>(indexSearch);
+
+            if (result is null)
+            {
+                return;
+            }
+            People.AddRange(result);
+
+        }
+        else
+        {
+            var result = await DbManager.GetRecordByIndex<string, Person>(indexSearch);
+
+            if (result is null)
+            {
+                return;
+            }
+            People.Add(result);
+        }
+    }
+
+    private void OnIndexedDbNotification(object sender, IndexedDBNotificationArgs args)
+    {
+        Message = args.Message;
+    }
+
+
+}

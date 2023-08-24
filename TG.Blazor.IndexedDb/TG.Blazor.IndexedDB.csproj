@@ -29,23 +29,32 @@
     <WebpackInputs Include="**\*.ts" Exclude="wwwroot\**;node_modules\**; **\*.d.ts" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="IndexedDB\DbFunctions.cs" />
+    <Compile Include="IndexedDB\DbInformation.cs" />
+    <Compile Include="IndexedDB\DbStore.cs" />
+    <Compile Include="IndexedDB\IndexedDBManager.cs" />
+    <Compile Include="IndexedDB\IndexedDBNotificationArgs.cs" />
+    <Compile Include="IndexedDB\IndexSpec.cs" />
+    <Compile Include="IndexedDB\StoreIndexQuery.cs" />
+    <Compile Include="IndexedDB\StoreRecord.cs" />
+    <Compile Include="IndexedDB\StoreSchema.cs" />
+    <Compile Include="ServiceCollectionExtensions.cs" />
+  </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="IndexedDB\" />
     <Folder Include="client\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
-
 
   <ItemGroup>
     <None Include="package.json" />
     <None Include="tsconfig.json" />
   </ItemGroup>
 
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.5" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="7.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.10" />
   </ItemGroup>
 
   <Target Name="EnsureNpmRestored" Condition="!Exists('node_modules')">
@@ -56,9 +65,6 @@
   <Target Name="RunWebpack" AfterTargets="ResolveReferences" Inputs="@(WebpackInputs)" Outputs="dist\indexedDb.Blazor.js" DependsOnTargets="EnsureNpmRestored">
     <Exec Command="npm run build:debug" Condition="'$(Configuration)' == 'Debug'" />
     <Exec Command="npm run build:production" Condition="'$(Configuration)' != 'Debug'" />
-    <ItemGroup>
-      <Content Include="wwwroot\**\*.js" />
-    </ItemGroup>
   </Target>
 
  
